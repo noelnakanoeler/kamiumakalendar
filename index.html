@@ -7,12 +7,31 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     :root{
-      --pink:#FFCFEF; --cherry:#D90452; --cherry-dark:#980238;
-      --ink:#0b0f14; --panel:#fff; --grid:#ffe6f6;
+      --pink:#FFE3F3; /* softer baby pink bg */
+      --ink:#0b0f14;
+      --panel:#fff;
+      --grid:#ffeef8;
+
+      /* baby-pink buttons (not hot pink) */
+      --btn-bg:#FFCAE9;
+      --btn-border:#E3A8CF;
+      --btn-text:#5a2145;
+
+      /* accents */
+      --ribbon:#FFB7E6;
+      --ribbon-dark:#D78CC0;
+
       --radius:14px; --shadow:6px 6px 0 var(--ink);
-      --ph-high:#7bd389; --ph-mid:#ffd166; --ph-low:#9bb5ff; --ph-pms:#ff8fb7; --ph-period:#c084fc;
+
+      /* phase colors */
+      --ph-high:#7bd389; /* mint/green */
+      --ph-mid:#ffd166; /* soft amber */
+      --ph-low:#9bb5ff; /* calm blue */
+      --ph-pms:#ff8fb7; /* rosy pink */
+      --ph-period:#c084fc; /* lilac */
       --tile-size:48px; --board-size:420px;
     }
+
     *{ box-sizing:border-box; } html,body{ height:100%; }
     body{
       margin:0;
@@ -25,22 +44,50 @@
       line-height:1.6;
     }
     .wrap{ max-width:1000px; margin:0 auto; padding:18px 14px 120px; }
-    .hero{ background:var(--panel); border:4px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; text-align:center; }
+
+    /* sparkly header ribbon */
+    .hero{
+      background:
+        radial-gradient(circle at 12% -10%, #fff8fd 0 40%, transparent 41%),
+        var(--panel);
+      border:4px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:20px 18px 14px; text-align:center; position:relative;
+    }
+    .hero:before,.hero:after{
+      content:"🎀✨"; position:absolute; top:-14px; font-size:18px;
+      background:var(--ribbon); border:3px solid var(--ink); border-radius:12px; padding:2px 8px;
+      box-shadow:4px 4px 0 var(--ink); transform:rotate(-3deg);
+    }
+    .hero:after{ right:14px; } .hero:before{ left:14px; transform:rotate(3deg); }
     h1{ margin:0 0 8px; font-size:18px; }
-    .tag{ font-size:12px; color:var(--cherry-dark); margin:0; }
-    .panel{ background:var(--panel); border:4px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin:16px 0; }
-    .section-title{ display:flex; align-items:center; gap:8px; margin:0 0 12px; font-size:14px; color:var(--cherry-dark); }
+    .tag{ font-size:12px; color:#7b3a63; margin:0; }
+
+    .panel{
+      background:var(--panel); border:4px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:16px; margin:16px 0; position:relative;
+    }
+    .panel:after{
+      content:"♥"; position:absolute; right:10px; top:-12px; background:var(--ribbon);
+      border:3px solid var(--ink); border-radius:10px; width:26px; height:26px; display:grid; place-items:center;
+      box-shadow:3px 3px 0 var(--ink);
+    }
+    .section-title{ display:flex; align-items:center; gap:8px; margin:0 0 12px; font-size:14px; color:#7b3a63; }
+
     .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center; }
     .field{ display:flex; align-items:center; gap:10px; }
     label{ font-size:11px; }
-    input[type="date"], select{ font:inherit; font-size:12px; padding:6px 8px; border:2px solid var(--ink); border-radius:10px; background:#fff; }
+    input[type="date"], select{
+      font:inherit; font-size:12px; padding:8px 10px; border:2px solid var(--ink); border-radius:10px; background:#fff;
+    }
+
     .btn{
-      appearance:none; border:none; cursor:pointer; background:var(--cherry); color:#fff;
-      border:3px solid var(--cherry-dark); box-shadow:4px 4px 0 var(--cherry-dark);
+      appearance:none; border:none; cursor:pointer; background:var(--btn-bg); color:var(--btn-text);
+      border:3px solid var(--btn-border); box-shadow:4px 4px 0 var(--btn-border);
       border-radius:12px; padding:10px 12px; font:inherit; font-size:12px; transition:transform .02s ease-in;
     }
-    .btn:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 var(--cherry-dark); }
-    .btn.ghost{ background:#fff; color:var(--cherry-dark); }
+    .btn:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 var(--btn-border); }
+    .btn.ghost{ background:#fff; color:var(--btn-text); }
+
     .readout{ text-align:center; font-size:12px; margin-top:10px; }
 
     /* board */
@@ -63,36 +110,42 @@
     .tile[data-exp="period"] { background: var(--ph-period); color:#fff; }
 
     .avatar{
-      position:absolute; width:34px; height:34px; border-radius:10px; border:3px solid var(--ink);
-      background:#fff; display:grid; place-items:center; font-size:16px;
+      position:absolute; width:36px; height:36px; border-radius:10px; border:3px solid var(--ink);
+      background:#fff; display:grid; place-items:center; font-size:18px;
       box-shadow:4px 4px 0 var(--ink); transform: translate(-50%, -50%); z-index:3;
     }
-    .avatar.glow{ box-shadow:0 0 0 3px rgba(255,255,255,.9), 6px 6px 0 var(--ink); }
+    .avatar.glow{ box-shadow:0 0 0 4px #fff, 6px 6px 0 var(--ink); }
 
     /* mood picker */
-    .mood-box{ margin-top:12px; border:3px solid var(--ink); border-radius:12px; padding:10px; background:#fff; box-shadow:3px 3px 0 var(--ink); }
-    .mood-rows{ display:grid; gap:8px; }
+    .mood-box{ margin-top:12px; border:3px solid var(--ink); border-radius:12px; padding:12px; background:#fff; box-shadow:3px 3px 0 var(--ink); }
+    .mood-rows{ display:grid; gap:10px; }
     .mood-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .mood-label{ font-size:10px; padding:2px 6px; border:2px solid var(--ink); border-radius:8px; background:#fff0f6; color:var(--cherry-dark); }
-    .emoji-btn{ border:2px solid var(--ink); border-radius:10px; padding:6px 8px; font-size:16px; background:#fff; cursor:pointer; box-shadow:2px 2px 0 rgba(0,0,0,.15); }
-    .emoji-btn.active{ outline:3px dashed var(--cherry-dark); outline-offset:2px; }
+    .mood-label{
+      font-size:10px; padding:2px 8px; border:2px solid var(--ink); border-radius:10px;
+      background:linear-gradient(#fff,#ffe6f5);
+      color:#6b2b54;
+    }
+    .emoji-btn{
+      border:2px solid var(--ink); border-radius:10px; padding:6px 8px; font-size:18px; background:#fff; cursor:pointer;
+      box-shadow:2px 2px 0 rgba(0,0,0,.15);
+    }
+    .emoji-btn.active{ outline:3px dashed var(--ribbon-dark); outline-offset:2px; background:#fff7fd; }
 
     /* calendar */
     .calendar{ display:grid; gap:8px; grid-template-columns: repeat(7, 1fr); border:2px solid var(--ink); border-radius:12px; padding:10px; background:#fff; }
     .cal-head{ font-weight:bold; background:#fff4f8; }
-    .cal-cell{ border:2px solid #f2c1d7; border-radius:10px; min-height:70px; padding:8px; position:relative; font-size:10px; background:#fff; }
+    .cal-cell{ border:2px solid #f2c1d7; border-radius:10px; min-height:76px; padding:8px; position:relative; font-size:10px; background:#fff; }
     .cal-cell .day{ position:absolute; top:6px; right:8px; opacity:.6; }
     .pill-tag{ position:absolute; bottom:6px; left:6px; padding:3px 6px; border:2px solid var(--ink); border-radius:8px; background:#fff; font-size:10px; }
     .mood-mark{ position:absolute; bottom:6px; right:6px; font-size:14px; }
-
-    .footer-note{ text-align:center; font-size:11px; opacity:.7; margin-top:24px; }
+    .mood-extra{ position:absolute; bottom:6px; right:28px; font-size:12px; opacity:.7; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header class="hero">
       <h1>Triquilar-28 Cute Tracker</h1>
-      <p class="tag">Pixel board · emoji moods · auto-calibration 🎀</p>
+      <p class="tag">Pixel board · multi-emoji moods · auto-calibration 🎀</p>
     </header>
 
     <!-- Controls -->
@@ -104,7 +157,6 @@
           <input type="date" id="startDate" />
         </div>
 
-        <!-- NEW: set start by “I’m on pill X today” -->
         <div class="field">
           <label for="pillToday">I’m on pill:</label>
           <select id="pillToday"></select>
@@ -118,7 +170,7 @@
         </div>
 
         <div class="field">
-          <button class="btn ghost" id="resetMood">Reset emoji (this day)</button>
+          <button class="btn ghost" id="resetMood">Reset emojis (this day)</button>
           <button class="btn ghost" id="showStats">Calibration stats</button>
           <button class="btn ghost" id="resetLearn">Reset learning</button>
         </div>
@@ -129,7 +181,7 @@
       <!-- Emoji mood picker -->
       <div class="mood-box">
         <div class="mood-rows" id="moodRows"></div>
-        <div class="readout" style="opacity:.8">Click the emoji that fits your day — we’ll learn your rhythm.</div>
+        <div class="readout" style="opacity:.8">Pick up to <b>5</b> emojis that fit your day. Toggle to select/unselect.</div>
       </div>
     </section>
 
@@ -154,27 +206,30 @@
   </div>
 
   <script>
-    /* ------------ config ------------ */
+    /* ---------------- CONFIG ---------------- */
     const PACK = 28;
+    const MAX_EMOJIS_PER_DAY = 5;
+
+    // 10+ per phase, tuned to your vibe
     const PHASES = [
-      { key:'high', label:'High energy', emoji:['💖','🎀','🍸','🌹','✨'], range:[ 1, 6] },
-      { key:'mid', label:'Normal', emoji:['☕','📚','🌷','📝','📒'], range:[ 7,11] },
-      { key:'low', label:'Low energy', emoji:['🛏️','🧸','🍵','🕯️','😴'], range:[12,17] },
-      { key:'pms', label:'PMS', emoji:['💢','🍫','😭','🔥','🎨'], range:[18,23] },
-      { key:'period', label:'Period', emoji:['🩸','🛁','🌸','🫖','🧘‍♀️'], range:[24,28] },
+      { key:'high', label:'High energy', emojis:['💖','🎀','🍸','🌹','✨','👗','💄','🌞','🎉','💃','🍓','💍'], range:[ 1, 6] },
+      { key:'mid', label:'Normal', emojis:['☕','📚','🌷','📝','📒','🧺','🧠','🧃','🌤️','🧹','🫧','🗂️'], range:[ 7,11] },
+      { key:'low', label:'Low energy', emojis:['🛏️','🧸','🍵','🕯️','😴','🎧','🫖','🍜','🧦','🌧️','📖','🧼'], range:[12,17] },
+      { key:'pms', label:'PMS', emojis:['💢','🍫','😭','🔥','🎨','🤯','😤','🧃','🌪️','🥀','😵‍💫','🙅‍♀️'], range:[18,23] },
+      { key:'period', label:'Period', emojis:['🩸','🛁','🌸','🫖','🧘‍♀️','🩹','🥣','🧴','🧣','🛋️','🌙','🧁'], range:[24,28] },
     ];
 
-    /* thresholds for learning (tweak) */
-    const MIN_STRONG_COUNT = 2; // top phase count >= 2 and > second
-    const MIN_TOTAL_FOR_RATIO = 4; // or total >= 4 and top share >= 0.6
+    /* learning thresholds */
+    const MIN_STRONG_COUNT = 2;
+    const MIN_TOTAL_FOR_RATIO = 4;
     const MIN_TOP_SHARE = 0.6;
 
     /* storage keys */
     const LS_START = 'triq28_start_iso';
-    const LS_MOODS = 'triq28_moods_v1'; // { 'YYYY-MM-DD': {emoji:'', phase:''} }
-    const LS_LEARN = 'triq28_learn_v1'; // { stats:{pill:{phase:count}}, learned:{pill:'phase'} }
+    const LS_MOODS = 'triq28_moods_v2_multi'; // { 'YYYY-MM-DD': { emojis:['',''], phase:'key' } }
+    const LS_LEARN = 'triq28_learn_v1';
 
-    /* DOM */
+    /* ---------------- DOM ---------------- */
     const startInput = document.getElementById('startDate');
     const pillTodaySel = document.getElementById('pillToday');
     const setFromPillBtn = document.getElementById('setFromPill');
@@ -194,7 +249,7 @@
 
     let viewOffset = 0;
 
-    /* ------------ utils ------------ */
+    /* ---------------- Utils ---------------- */
     const iso = d => new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())).toISOString().slice(0,10);
     const daysBetween = (a,b) => Math.floor((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) - Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/86400000);
 
@@ -208,7 +263,7 @@
       return 'mid';
     }
 
-    /* ------------ storage ------------ */
+    /* ---------------- Storage ---------------- */
     function getSavedStart(){
       const s = localStorage.getItem(LS_START);
       if(!s) return null;
@@ -228,12 +283,8 @@
     function saveLearn(o){ localStorage.setItem(LS_LEARN, JSON.stringify(o)); }
     function resetLearning(){ saveLearn({stats:{}, learned:{}}); }
 
-    /* ------------ learning ------------ */
-    function recordSelection(dateIso, pill, chosenPhase, emoji){
-      const moods = loadMoods();
-      moods[dateIso] = { emoji, phase: chosenPhase };
-      saveMoods(moods);
-
+    /* ---------------- Learning ---------------- */
+    function updateLearningFor(dateIso, pill, chosenPhase){
       const learn = loadLearn();
       const key = String(pill);
       if(!learn.stats[key]) learn.stats[key] = {high:0, mid:0, low:0, pms:0, period:0};
@@ -260,12 +311,50 @@
       return learned || basePhaseForPill(pill);
     }
 
-    /* ------------ UI builders ------------ */
+    /* ---------------- Mood selection (multi) ---------------- */
+    function toggleEmojiForDate(targetDate, phaseKey, emoji){
+      const moods = loadMoods();
+      const k = iso(targetDate);
+      const entry = moods[k] || { emojis:[], phase:phaseKey };
+
+      // toggle logic
+      const idx = entry.emojis.indexOf(emoji);
+      if(idx>=0){
+        entry.emojis.splice(idx,1);
+      }else{
+        if(entry.emojis.length >= MAX_EMOJIS_PER_DAY){
+          alert(`You can select up to ${MAX_EMOJIS_PER_DAY} emojis for a day.`);
+          return;
+        }
+        entry.emojis.push(emoji);
+      }
+
+      // determine day's phase by majority of selected emoji rows
+      // count selections per phase row
+      const counts = {high:0, mid:0, low:0, pms:0, period:0};
+      entry.emojis.forEach(em=>{
+        for(const p of PHASES){ if(p.emojis.includes(em)) { counts[p.key]++; break; } }
+      });
+      let chosenPhase = phaseKey; // fallback
+      let best = -1;
+      for(const ph of Object.keys(counts)){ if(counts[ph]>best){ best=counts[ph]; chosenPhase=ph; } }
+
+      entry.phase = chosenPhase;
+      moods[k] = entry;
+      saveMoods(moods);
+
+      // update learning using the chosen phase for this pill
+      const packStart = new Date(startInput.value);
+      const pill = pillForDate(packStart, targetDate);
+      if(entry.emojis.length>0) updateLearningFor(k, pill, chosenPhase);
+    }
+
+    /* ---------------- UI builders ---------------- */
     function renderMoodRows(currentDate, expectedPhaseKey){
       moodRowsEl.innerHTML = '';
       const moods = loadMoods();
       const k = iso(currentDate);
-      const existing = moods[k];
+      const current = moods[k]?.emojis || [];
 
       PHASES.forEach(p=>{
         const row = document.createElement('div');
@@ -276,27 +365,21 @@
         label.textContent = p.key.toUpperCase();
         row.appendChild(label);
 
-        p.emoji.forEach(em=>{
+        p.emojis.forEach(em=>{
           const btn = document.createElement('button');
           btn.type='button'; btn.className='emoji-btn'; btn.textContent=em;
-          if(existing && existing.emoji===em) btn.classList.add('active');
-          btn.addEventListener('click', ()=>{
-            const packStart = new Date(startInput.value);
-            const pill = pillForDate(packStart, currentDate);
-            recordSelection(k, pill, p.key, em);
-            updateAll();
-          });
+          if(current.includes(em)) btn.classList.add('active');
+          btn.addEventListener('click', ()=>{ toggleEmojiForDate(currentDate, p.key, em); updateAll(); });
           row.appendChild(btn);
         });
 
         if(p.key === expectedPhaseKey){
           const hint = document.createElement('span');
           hint.className='mood-label';
-          hint.style.background='#e7ffef'; hint.style.color='#0b7c38';
+          hint.style.background='#e7ffef'; hint.style.color:'#0b7c38';
           hint.textContent='expected today';
           row.appendChild(hint);
         }
-
         moodRowsEl.appendChild(row);
       });
     }
@@ -314,7 +397,7 @@
         const t=document.createElement('div');
         t.className='tile'; t.dataset.exp=exp;
         t.style.left=x+'px'; t.style.top=y+'px';
-        t.innerHTML=`<div class="n">${i}</div>`;
+        t.innerHTML=`<div class="n">★ ${i}</div>`;
         boardEl.appendChild(t);
 
         if(i===currentPill){
@@ -332,16 +415,19 @@
       const base = basePhaseForPill(pill);
 
       const moods = loadMoods();
-      const pick = moods[iso(date)];
-      const showPhase = pick?.phase || exp;
-      const showEmoji = pick?.emoji || '🌸';
+      const entry = moods[iso(date)];
+      const showEmoji = (entry?.emojis && entry.emojis.length) ? entry.emojis[0] : '🌸';
+      const chosenPhase = entry?.phase || exp;
       const flag = (exp!==base) ? ' (learned)' : ' (base)';
+
+      const combo = (entry?.emojis||[]).slice(0,5).join(' ');
+      const more = (entry?.emojis?.length||0) > 5 ? ` +${entry.emojis.length-5}` : '';
 
       summaryEl.innerHTML =
         `<div><strong>${iso(date)}</strong> · Pill <strong>${pill}</strong> / ${PACK}</div>
          <div style="margin-top:6px;">Expected: <strong>${exp.toUpperCase()}</strong>${flag}</div>
-         <div style="margin-top:6px;">Showing: <strong>${showPhase.toUpperCase()}</strong> ${pick ? '(custom today)' : '(expected)'}</div>
-         <div style="margin-top:6px; font-size:18px;">${showEmoji}</div>`;
+         <div style="margin-top:6px;">Today: <strong>${chosenPhase.toUpperCase()}</strong> ${entry?'(custom)':'(expected)'} </div>
+         <div style="margin-top:6px; font-size:18px;">${combo || '🌸'}${more}</div>`;
       return { pill, expKey: exp, avatarEmoji: showEmoji };
     }
 
@@ -362,17 +448,26 @@
         const date=new Date(y,m,d);
         const pill=pillForDate(packStart,date);
         const exp = expectedPhaseForPill(pill);
-        const custom = moods[iso(date)];
+        const entry = moods[iso(date)];
 
-        const cell=document.createElement('div'); cell.className='cal-cell'; cell.dataset.exp=custom?.phase || exp;
+        const cell=document.createElement('div'); cell.className='cal-cell'; cell.dataset.exp=entry?.phase || exp;
         const dn=document.createElement('div'); dn.className='day'; dn.textContent=d; cell.appendChild(dn);
         const tag=document.createElement('div'); tag.className='pill-tag'; tag.textContent=`P${pill}`; cell.appendChild(tag);
-        if(custom?.emoji){ const em=document.createElement('div'); em.className='mood-mark'; em.textContent=custom.emoji; cell.appendChild(em); }
+
+        if(entry?.emojis?.length){
+          const show = entry.emojis.slice(0,3).join(' ');
+          const extra = entry.emojis.length>3 ? ` +${entry.emojis.length-3}` : '';
+          const em=document.createElement('div'); em.className='mood-mark'; em.textContent=show; cell.appendChild(em);
+          if(extra){
+            const ex=document.createElement('div'); ex.className='mood-extra'; ex.textContent=extra; cell.appendChild(ex);
+          }
+        }
+
         calendarEl.appendChild(cell);
       }
     }
 
-    /* ------------ helpers & init ------------ */
+    /* ---------------- Init + Controls ---------------- */
     function setStartFromPillToday(pillNumber){
       const today = new Date();
       const start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (Number(pillNumber) - 1));
@@ -414,12 +509,11 @@
       renderMoodRows(viewDate, expKey);
       renderCalendar(packStart, new Date(viewDate.getFullYear(), viewDate.getMonth(), 1));
 
-      // keep selector in sync with *today* (not viewOffset)
       const todayPill = pillForDate(packStart, new Date());
       pillTodaySel.value = String(todayPill);
     }
 
-    /* ------------ wire up ------------ */
+    /* wire up */
     populatePillSelector();
     initStart();
     updateAll();
