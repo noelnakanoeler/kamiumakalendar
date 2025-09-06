@@ -103,7 +103,7 @@
     .cal-cell[data-exp="pms"] { background: linear-gradient(#fff, #ffe4ee); }
     .cal-cell[data-exp="period"] { background: linear-gradient(#fff, #f3e8ff); }
 
-    /* today indicator on selected/viewed cell */
+    /* focus indicator on selected/viewed cell */
     .today-ring{
       position:absolute; inset:4px; border:3px dashed var(--ribbon-dark); border-radius:10px; pointer-events:none;
       box-shadow:inset 0 0 0 3px rgba(255,255,255,.6);
@@ -149,23 +149,17 @@
           <button class="btn" id="setFromPill">Set from today</button>
         </div>
 
-        <!-- NEW: pick any date to view/edit -->
+        <!-- View any date -->
         <div class="field">
           <label for="viewDate">View date:</label>
           <input type="date" id="viewDate" />
-          <button class="btn" id="jumpToView">Open</button>
+          <button class="btn" id="jumpToView">Open date</button>
         </div>
 
         <div class="field">
           <button class="btn" id="prevDay">◀</button>
           <button class="btn" id="goToday">Today</button>
           <button class="btn" id="nextDay">▶</button>
-        </div>
-
-        <div class="field">
-          <button class="btn ghost" id="resetMood">Reset emojis (this day)</button>
-          <button class="btn ghost" id="showStats">Calibration stats</button>
-          <button class="btn ghost" id="resetLearn">Reset learning</button>
         </div>
       </div>
 
@@ -176,7 +170,7 @@
         <div class="mood-rows" id="moodRows"></div>
         <div class="readout" id="moodHint" style="opacity:.8">Select up to <b>5</b> emojis that fit your day.</div>
 
-        <!-- NEW: submit to lock the day -->
+        <!-- Submit to lock the day -->
         <div class="readout">
           <button class="btn" id="submitDay">Submit today’s mood</button>
         </div>
@@ -217,6 +211,8 @@
       { key:'pms', label:'PMS', emojis:['💢','🍫','😭','🔥','🎨','🤯','😤','🧃','🌪️','🥀','😵‍💫','🙅‍♀️'], range:[18,23] },
       { key:'period', label:'Period', emojis:['🩸','🛁','🌸','🫖','🧘‍♀️','🩹','🥣','🧴','🧣','🛋️','🌙','🧁'], range:[24,28] },
     ];
+
+    // minimal learning (kept, but hidden UI)
     const MIN_STRONG_COUNT = 2, MIN_TOTAL_FOR_RATIO = 4, MIN_TOP_SHARE = 0.6;
 
     /* ------------ Storage keys ------------ */
@@ -233,9 +229,6 @@
     const prevBtn = document.getElementById('prevDay');
     const nextBtn = document.getElementById('nextDay');
     const todayBtn = document.getElementById('goToday');
-    const resetMoodBtn = document.getElementById('resetMood');
-    const statsBtn = document.getElementById('showStats');
-    const resetLearnBtn = document.getElementById('resetLearn');
     const submitDayBtn = document.getElementById('submitDay');
 
     const summaryEl = document.getElementById('summary');
@@ -263,7 +256,6 @@
     function saveMoods(o){ saveJSON(LS_MOODS, o); }
     function loadLearn(){ const o=loadJSON(LS_LEARN,{stats:{},learned:{}}); if(!o.stats) o.stats={}; if(!o.learned) o.learned={}; return o; }
     function saveLearn(o){ saveJSON(LS_LEARN,o); }
-    function resetLearning(){ saveLearn({stats:{}, learned:{}}); }
 
     /* ------------ learning ------------ */
     function updateLearningFor(pill, chosenPhase){
@@ -298,7 +290,7 @@
         entry.emojis.push(emoji);
       }
 
-      // recompute day phase by majority
+      // recompute day phase by majority of selected emoji rows
       const counts = {high:0, mid:0, low:0, pms:0, period:0};
       entry.emojis.forEach(em=>{ for(const p of PHASES){ if(p.emojis.includes(em)){ counts[p.key]++; break; } } });
       let chosen = phaseKey, best=-1;
@@ -311,7 +303,8 @@
     function submitDay(date){
       const k = toISO(date);
       const moods = loadMoods();
-      const entry = moods[k] || {emojis:[], phase:expectedPhaseForPill(pillForDate(getSavedStart(), date)), locked:false};
+      const start = getSavedStart();
+      const entry = moods[k] || {emojis:[], phase:expectedPhaseForPill(pillForDate(start, date)), locked:false};
 
       if(entry.emojis.length === 0){
         alert('Pick at least one emoji before submitting 🌸');
@@ -321,7 +314,7 @@
       moods[k] = entry; saveMoods(moods);
 
       // learn from submitted phase
-      const start = getSavedStart(); const pill = pillForDate(start, date);
+      const pill = pillForDate(start, date);
       updateLearningFor(pill, entry.phase);
     }
 
@@ -455,12 +448,6 @@
       setSavedStart(start); viewDateOffset=0; updateAll();
     }
 
-    function showCalibrationStats(){
-      const learn = loadLearn(); const learnedCount=Object.keys(learn.learned).length; const diffs=[];
-      for(let i=1;i<=PACK;i++){ const exp=expectedPhaseForPill(i), base=basePhaseForPill(i); if(exp!==base) diffs.push(`P${i}:${base}→${exp}`); }
-      alert(`Learned pills: ${learnedCount}/${PACK}\n` + (diffs.length? `Overrides: ${diffs.join(', ')}` : 'No overrides yet — keep logging!'));
-    }
-
     function updateAll(){
       const start = fromISO(startInput.value); if(!start) return;
       const focusDate = currentViewedDate();
@@ -470,11 +457,9 @@
       renderMoodRows(focusDate, expKey);
       renderCalendar(start, monthAnchor, focusDate);
 
-      // keep pill selector synced to actual today
       const todayPill = pillForDate(start, new Date());
       pillTodaySel.value = String(todayPill);
 
-      // keep the viewDate input synced to focused date
       syncViewDateInput();
     }
 
@@ -500,19 +485,6 @@
       const d=currentViewedDate();
       submitDay(d);
       updateAll();
-    });
-
-    resetMoodBtn.addEventListener('click', ()=>{
-      const k=toISO(currentViewedDate()); const moods=loadMoods();
-      if(moods[k]){ delete moods[k]; saveMoods(moods); updateAll(); }
-    });
-
-    statsBtn.addEventListener('click', showCalibrationStats);
-
-    resetLearnBtn.addEventListener('click', ()=>{
-      if(confirm('Reset learned phases? (Your per-day emoji diary stays.)')){
-        resetLearning(); updateAll();
-      }
     });
 
     window.addEventListener('resize', ()=>updateAll(), {passive:true});
