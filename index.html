@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Triquilar-28 Tracker · pixel pink</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --pink:#FFCFEF; --cherry:#D90452; --cherry-dark:#980238;
+      --ink:#0b0f14; --panel:#fff; --grid:#ffe6f6;
+      --radius:14px; --shadow:6px 6px 0 var(--ink);
+      --ph-high:#7bd389; --ph-mid:#ffd166; --ph-low:#9bb5ff; --ph-pms:#ff8fb7; --ph-period:#c084fc;
+      --tile-size:48px; --board-size:420px;
+    }
+    *{ box-sizing:border-box; } html,body{ height:100%; }
+    body{
+      margin:0;
+      background:
+        repeating-linear-gradient(0deg, var(--grid) 0 2px, transparent 2px 22px),
+        repeating-linear-gradient(90deg, var(--grid) 0 2px, transparent 2px 22px),
+        var(--pink);
+      color:var(--ink);
+      font-family:'Press Start 2P', system-ui, sans-serif;
+      line-height:1.6;
+    }
+    .wrap{ max-width:1000px; margin:0 auto; padding:18px 14px 120px; }
+    .hero{ background:var(--panel); border:4px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; text-align:center; }
+    h1{ margin:0 0 8px; font-size:18px; }
+    .tag{ font-size:12px; color:var(--cherry-dark); margin:0; }
+    .panel{ background:var(--panel); border:4px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin:16px 0; }
+    .section-title{ display:flex; align-items:center; gap:8px; margin:0 0 12px; font-size:14px; color:var(--cherry-dark); }
+    .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center; }
+    .field{ display:flex; align-items:center; gap:10px; }
+    label{ font-size:11px; }
+    input[type="date"], select{ font:inherit; font-size:12px; padding:6px 8px; border:2px solid var(--ink); border-radius:10px; background:#fff; }
+    .btn{
+      appearance:none; border:none; cursor:pointer; background:var(--cherry); color:#fff;
+      border:3px solid var(--cherry-dark); box-shadow:4px 4px 0 var(--cherry-dark);
+      border-radius:12px; padding:10px 12px; font:inherit; font-size:12px; transition:transform .02s ease-in;
+    }
+    .btn:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 var(--cherry-dark); }
+    .btn.ghost{ background:#fff; color:var(--cherry-dark); }
+    .readout{ text-align:center; font-size:12px; margin-top:10px; }
+
+    /* board */
+    .board-wrap{ display:flex; justify-content:center; }
+    .board{
+      position:relative; width:var(--board-size); height:var(--board-size); margin:auto; border-radius:50%;
+      background: radial-gradient(transparent 56%, rgba(0,0,0,0.05) 57% 58%, transparent 59%);
+    }
+    .tile{
+      position:absolute; width:var(--tile-size); height:var(--tile-size);
+      border:2px solid var(--ink); border-radius:12px; background:#fff;
+      display:grid; place-items:center; font-size:10px; box-shadow:2px 2px 0 rgba(0,0,0,.15);
+      transform: translate(-50%, -50%);
+    }
+    .tile .n{ font-size:10px; }
+    .tile[data-exp="high"] { background: var(--ph-high); }
+    .tile[data-exp="mid"] { background: var(--ph-mid); }
+    .tile[data-exp="low"] { background: var(--ph-low); }
+    .tile[data-exp="pms"] { background: var(--ph-pms); }
+    .tile[data-exp="period"] { background: var(--ph-period); color:#fff; }
+
+    .avatar{
+      position:absolute; width:34px; height:34px; border-radius:10px; border:3px solid var(--ink);
+      background:#fff; display:grid; place-items:center; font-size:16px;
+      box-shadow:4px 4px 0 var(--ink); transform: translate(-50%, -50%); z-index:3;
+    }
+    .avatar.glow{ box-shadow:0 0 0 3px rgba(255,255,255,.9), 6px 6px 0 var(--ink); }
+
+    /* mood picker */
+    .mood-box{ margin-top:12px; border:3px solid var(--ink); border-radius:12px; padding:10px; background:#fff; box-shadow:3px 3px 0 var(--ink); }
+    .mood-rows{ display:grid; gap:8px; }
+    .mood-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .mood-label{ font-size:10px; padding:2px 6px; border:2px solid var(--ink); border-radius:8px; background:#fff0f6; color:var(--cherry-dark); }
+    .emoji-btn{ border:2px solid var(--ink); border-radius:10px; padding:6px 8px; font-size:16px; background:#fff; cursor:pointer; box-shadow:2px 2px 0 rgba(0,0,0,.15); }
+    .emoji-btn.active{ outline:3px dashed var(--cherry-dark); outline-offset:2px; }
+
+    /* calendar */
+    .calendar{ display:grid; gap:8px; grid-template-columns: repeat(7, 1fr); border:2px solid var(--ink); border-radius:12px; padding:10px; background:#fff; }
+    .cal-head{ font-weight:bold; background:#fff4f8; }
+    .cal-cell{ border:2px solid #f2c1d7; border-radius:10px; min-height:70px; padding:8px; position:relative; font-size:10px; background:#fff; }
+    .cal-cell .day{ position:absolute; top:6px; right:8px; opacity:.6; }
+    .pill-tag{ position:absolute; bottom:6px; left:6px; padding:3px 6px; border:2px solid var(--ink); border-radius:8px; background:#fff; font-size:10px; }
+    .mood-mark{ position:absolute; bottom:6px; right:6px; font-size:14px; }
+
+    .footer-note{ text-align:center; font-size:11px; opacity:.7; margin-top:24px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>Triquilar-28 Cute Tracker</h1>
+      <p class="tag">Pixel board · emoji moods · auto-calibration 🎀</p>
+    </header>
+
+    <!-- Controls -->
+    <section class="panel">
+      <h2 class="section-title">🎀 Your Pack</h2>
+      <div class="controls">
+        <div class="field">
+          <label for="startDate">Pack start (Pill 1):</label>
+          <input type="date" id="startDate" />
+        </div>
+
+        <!-- NEW: set start by “I’m on pill X today” -->
+        <div class="field">
+          <label for="pillToday">I’m on pill:</label>
+          <select id="pillToday"></select>
+          <button class="btn" id="setFromPill">Set from today</button>
+        </div>
+
+        <div class="field">
+          <button class="btn" id="prevDay">◀</button>
+          <button class="btn" id="goToday">Today</button>
+          <button class="btn" id="nextDay">▶</button>
+        </div>
+
+        <div class="field">
+          <button class="btn ghost" id="resetMood">Reset emoji (this day)</button>
+          <button class="btn ghost" id="showStats">Calibration stats</button>
+          <button class="btn ghost" id="resetLearn">Reset learning</button>
+        </div>
+      </div>
+
+      <div class="readout"><div id="summary"></div></div>
+
+      <!-- Emoji mood picker -->
+      <div class="mood-box">
+        <div class="mood-rows" id="moodRows"></div>
+        <div class="readout" style="opacity:.8">Click the emoji that fits your day — we’ll learn your rhythm.</div>
+      </div>
+    </section>
+
+    <!-- Board -->
+    <section class="panel">
+      <h2 class="section-title">🧭 Daily Board (28 tiles)</h2>
+      <div class="board-wrap">
+        <div class="board" id="board">
+          <div class="avatar" id="avatar">🌸</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Calendar -->
+    <section class="panel">
+      <h2 class="section-title">🗓 Monthly Calendar</h2>
+      <div id="calendar" class="calendar" aria-label="Month view"></div>
+      <p class="readout" id="calLabel"></p>
+    </section>
+
+    <footer class="footer-note">♡ all data stays in your browser (localStorage) ♡</footer>
+  </div>
+
+  <script>
+    /* ------------ config ------------ */
+    const PACK = 28;
+    const PHASES = [
+      { key:'high', label:'High energy', emoji:['💖','🎀','🍸','🌹','✨'], range:[ 1, 6] },
+      { key:'mid', label:'Normal', emoji:['☕','📚','🌷','📝','📒'], range:[ 7,11] },
+      { key:'low', label:'Low energy', emoji:['🛏️','🧸','🍵','🕯️','😴'], range:[12,17] },
+      { key:'pms', label:'PMS', emoji:['💢','🍫','😭','🔥','🎨'], range:[18,23] },
+      { key:'period', label:'Period', emoji:['🩸','🛁','🌸','🫖','🧘‍♀️'], range:[24,28] },
+    ];
+
+    /* thresholds for learning (tweak) */
+    const MIN_STRONG_COUNT = 2; // top phase count >= 2 and > second
+    const MIN_TOTAL_FOR_RATIO = 4; // or total >= 4 and top share >= 0.6
+    const MIN_TOP_SHARE = 0.6;
+
+    /* storage keys */
+    const LS_START = 'triq28_start_iso';
+    const LS_MOODS = 'triq28_moods_v1'; // { 'YYYY-MM-DD': {emoji:'', phase:''} }
+    const LS_LEARN = 'triq28_learn_v1'; // { stats:{pill:{phase:count}}, learned:{pill:'phase'} }
+
+    /* DOM */
+    const startInput = document.getElementById('startDate');
+    const pillTodaySel = document.getElementById('pillToday');
+    const setFromPillBtn = document.getElementById('setFromPill');
+    const prevBtn = document.getElementById('prevDay');
+    const nextBtn = document.getElementById('nextDay');
+    const todayBtn = document.getElementById('goToday');
+    const resetMoodBtn = document.getElementById('resetMood');
+    const statsBtn = document.getElementById('showStats');
+    const resetLearnBtn = document.getElementById('resetLearn');
+
+    const summaryEl = document.getElementById('summary');
+    const boardEl = document.getElementById('board');
+    const avatarEl = document.getElementById('avatar');
+    const calendarEl = document.getElementById('calendar');
+    const calLabelEl = document.getElementById('calLabel');
+    const moodRowsEl = document.getElementById('moodRows');
+
+    let viewOffset = 0;
+
+    /* ------------ utils ------------ */
+    const iso = d => new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())).toISOString().slice(0,10);
+    const daysBetween = (a,b) => Math.floor((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) - Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/86400000);
+
+    function pillForDate(start, date){
+      const diff = daysBetween(start, date);
+      const mod = ((diff % PACK) + PACK) % PACK;
+      return mod + 1;
+    }
+    function basePhaseForPill(pill){
+      for(const p of PHASES){ const [lo,hi]=p.range; if(pill>=lo && pill<=hi) return p.key; }
+      return 'mid';
+    }
+
+    /* ------------ storage ------------ */
+    function getSavedStart(){
+      const s = localStorage.getItem(LS_START);
+      if(!s) return null;
+      const d = new Date(s);
+      return isNaN(d) ? null : d;
+    }
+    function setSavedStart(d){ localStorage.setItem(LS_START, iso(d)); startInput.value = iso(d); }
+
+    function loadMoods(){ try{ return JSON.parse(localStorage.getItem(LS_MOODS)||'{}'); }catch(e){ return {}; } }
+    function saveMoods(o){ localStorage.setItem(LS_MOODS, JSON.stringify(o)); }
+
+    function loadLearn(){ try{
+      const o = JSON.parse(localStorage.getItem(LS_LEARN)||'{}');
+      if(!o.stats) o.stats = {}; if(!o.learned) o.learned = {};
+      return o;
+    }catch(e){ return {stats:{}, learned:{}}; } }
+    function saveLearn(o){ localStorage.setItem(LS_LEARN, JSON.stringify(o)); }
+    function resetLearning(){ saveLearn({stats:{}, learned:{}}); }
+
+    /* ------------ learning ------------ */
+    function recordSelection(dateIso, pill, chosenPhase, emoji){
+      const moods = loadMoods();
+      moods[dateIso] = { emoji, phase: chosenPhase };
+      saveMoods(moods);
+
+      const learn = loadLearn();
+      const key = String(pill);
+      if(!learn.stats[key]) learn.stats[key] = {high:0, mid:0, low:0, pms:0, period:0};
+      learn.stats[key][chosenPhase] = (learn.stats[key][chosenPhase]||0) + 1;
+
+      // decide learned phase
+      const c = learn.stats[key];
+      const total = Object.values(c).reduce((s,n)=>s+n,0);
+      let top=''; let topCount=-1; let second=-1;
+      for(const ph of Object.keys(c)){
+        const v=c[ph];
+        if(v>topCount){ second = topCount; topCount=v; top=ph; }
+        else if(v>second){ second=v; }
+      }
+      const strong = (topCount>=MIN_STRONG_COUNT && topCount>second);
+      const ratio = (total>=MIN_TOTAL_FOR_RATIO && (topCount/total)>=MIN_TOP_SHARE);
+      if(strong || ratio) learn.learned[key] = top;
+
+      saveLearn(learn);
+    }
+
+    function expectedPhaseForPill(pill){
+      const learned = loadLearn().learned[String(pill)];
+      return learned || basePhaseForPill(pill);
+    }
+
+    /* ------------ UI builders ------------ */
+    function renderMoodRows(currentDate, expectedPhaseKey){
+      moodRowsEl.innerHTML = '';
+      const moods = loadMoods();
+      const k = iso(currentDate);
+      const existing = moods[k];
+
+      PHASES.forEach(p=>{
+        const row = document.createElement('div');
+        row.className = 'mood-row';
+
+        const label = document.createElement('span');
+        label.className = 'mood-label';
+        label.textContent = p.key.toUpperCase();
+        row.appendChild(label);
+
+        p.emoji.forEach(em=>{
+          const btn = document.createElement('button');
+          btn.type='button'; btn.className='emoji-btn'; btn.textContent=em;
+          if(existing && existing.emoji===em) btn.classList.add('active');
+          btn.addEventListener('click', ()=>{
+            const packStart = new Date(startInput.value);
+            const pill = pillForDate(packStart, currentDate);
+            recordSelection(k, pill, p.key, em);
+            updateAll();
+          });
+          row.appendChild(btn);
+        });
+
+        if(p.key === expectedPhaseKey){
+          const hint = document.createElement('span');
+          hint.className='mood-label';
+          hint.style.background='#e7ffef'; hint.style.color='#0b7c38';
+          hint.textContent='expected today';
+          row.appendChild(hint);
+        }
+
+        moodRowsEl.appendChild(row);
+      });
+    }
+
+    function renderBoard(currentPill, avatarEmoji, glow){
+      [...boardEl.querySelectorAll('.tile')].forEach(n=>n.remove());
+      const cx=boardEl.clientWidth/2, cy=boardEl.clientHeight/2;
+      const r=(Math.min(boardEl.clientWidth,boardEl.clientHeight)/2)-24;
+
+      for(let i=1;i<=PACK;i++){
+        const theta=(i-1)*(2*Math.PI/PACK)-Math.PI/2;
+        const x=cx+r*Math.cos(theta), y=cy+r*Math.sin(theta);
+        const exp = expectedPhaseForPill(i);
+
+        const t=document.createElement('div');
+        t.className='tile'; t.dataset.exp=exp;
+        t.style.left=x+'px'; t.style.top=y+'px';
+        t.innerHTML=`<div class="n">${i}</div>`;
+        boardEl.appendChild(t);
+
+        if(i===currentPill){
+          avatarEl.style.left=x+'px'; avatarEl.style.top=y+'px';
+          avatarEl.textContent = avatarEmoji || '🌸';
+          avatarEl.classList.toggle('glow', glow);
+          avatarEl.title = `Pill ${i} (${exp})`;
+        }
+      }
+    }
+
+    function renderSummary(packStart, date){
+      const pill = pillForDate(packStart, date);
+      const exp = expectedPhaseForPill(pill);
+      const base = basePhaseForPill(pill);
+
+      const moods = loadMoods();
+      const pick = moods[iso(date)];
+      const showPhase = pick?.phase || exp;
+      const showEmoji = pick?.emoji || '🌸';
+      const flag = (exp!==base) ? ' (learned)' : ' (base)';
+
+      summaryEl.innerHTML =
+        `<div><strong>${iso(date)}</strong> · Pill <strong>${pill}</strong> / ${PACK}</div>
+         <div style="margin-top:6px;">Expected: <strong>${exp.toUpperCase()}</strong>${flag}</div>
+         <div style="margin-top:6px;">Showing: <strong>${showPhase.toUpperCase()}</strong> ${pick ? '(custom today)' : '(expected)'}</div>
+         <div style="margin-top:6px; font-size:18px;">${showEmoji}</div>`;
+      return { pill, expKey: exp, avatarEmoji: showEmoji };
+    }
+
+    function renderCalendar(packStart, monthDate){
+      calendarEl.innerHTML='';
+      const y=monthDate.getFullYear(), m=monthDate.getMonth();
+      calLabelEl.textContent = `${y}-${String(m+1).padStart(2,'0')}`;
+
+      ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(n=>{
+        const h=document.createElement('div'); h.className='cal-cell cal-head'; h.textContent=n; calendarEl.appendChild(h);
+      });
+
+      const first=new Date(y,m,1), startDay=first.getDay(), dim=new Date(y,m+1,0).getDate();
+      for(let i=0;i<startDay;i++){ const pad=document.createElement('div'); pad.className='cal-cell'; calendarEl.appendChild(pad); }
+
+      const moods=loadMoods();
+      for(let d=1; d<=dim; d++){
+        const date=new Date(y,m,d);
+        const pill=pillForDate(packStart,date);
+        const exp = expectedPhaseForPill(pill);
+        const custom = moods[iso(date)];
+
+        const cell=document.createElement('div'); cell.className='cal-cell'; cell.dataset.exp=custom?.phase || exp;
+        const dn=document.createElement('div'); dn.className='day'; dn.textContent=d; cell.appendChild(dn);
+        const tag=document.createElement('div'); tag.className='pill-tag'; tag.textContent=`P${pill}`; cell.appendChild(tag);
+        if(custom?.emoji){ const em=document.createElement('div'); em.className='mood-mark'; em.textContent=custom.emoji; cell.appendChild(em); }
+        calendarEl.appendChild(cell);
+      }
+    }
+
+    /* ------------ helpers & init ------------ */
+    function setStartFromPillToday(pillNumber){
+      const today = new Date();
+      const start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (Number(pillNumber) - 1));
+      setSavedStart(start);
+      viewOffset = 0;
+      updateAll();
+    }
+
+    function showCalibrationStats(){
+      const learn = loadLearn();
+      const learnedCount = Object.keys(learn.learned).length;
+      const diffs = [];
+      for(let i=1;i<=PACK;i++){
+        const exp = expectedPhaseForPill(i);
+        const base = basePhaseForPill(i);
+        if(exp!==base) diffs.push(`P${i}:${base}→${exp}`);
+      }
+      alert(`Learned pills: ${learnedCount}/${PACK}\n` + (diffs.length? `Overrides: ${diffs.join(', ')}` : 'No overrides yet — keep logging!'));
+    }
+
+    function populatePillSelector(){
+      pillTodaySel.innerHTML = Array.from({length:PACK},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+    }
+
+    function initStart(){
+      const saved = getSavedStart();
+      if(saved) startInput.value = iso(saved);
+      else { const t=new Date(); setSavedStart(t); }
+    }
+
+    function currentViewedDate(){ const base=new Date(); base.setDate(base.getDate()+viewOffset); return base; }
+
+    function updateAll(){
+      const packStart = new Date(startInput.value);
+      const viewDate = currentViewedDate();
+
+      const {pill, expKey, avatarEmoji} = renderSummary(packStart, viewDate);
+      renderBoard(pill, avatarEmoji, expKey==='high');
+      renderMoodRows(viewDate, expKey);
+      renderCalendar(packStart, new Date(viewDate.getFullYear(), viewDate.getMonth(), 1));
+
+      // keep selector in sync with *today* (not viewOffset)
+      const todayPill = pillForDate(packStart, new Date());
+      pillTodaySel.value = String(todayPill);
+    }
+
+    /* ------------ wire up ------------ */
+    populatePillSelector();
+    initStart();
+    updateAll();
+
+    startInput.addEventListener('change', ()=>{ setSavedStart(new Date(startInput.value)); viewOffset=0; updateAll(); });
+    prevBtn.addEventListener('click', ()=>{ viewOffset -= 1; updateAll(); });
+    nextBtn.addEventListener('click', ()=>{ viewOffset += 1; updateAll(); });
+    todayBtn.addEventListener('click', ()=>{ viewOffset = 0; updateAll(); });
+
+    setFromPillBtn.addEventListener('click', ()=>{
+      const n = Number(pillTodaySel.value);
+      if(n>=1 && n<=PACK) setStartFromPillToday(n);
+    });
+
+    resetMoodBtn.addEventListener('click', ()=>{
+      const moods=loadMoods(); const k=iso(currentViewedDate());
+      if(moods[k]){ delete moods[k]; saveMoods(moods); updateAll(); }
+    });
+
+    statsBtn.addEventListener('click', showCalibrationStats);
+
+    resetLearnBtn.addEventListener('click', ()=>{
+      if(confirm('Reset learned phases? (Your per-day emoji diary stays.)')){
+        resetLearning(); updateAll();
+      }
+    });
+
+    window.addEventListener('resize', ()=>updateAll(), {passive:true});
+  </script>
+</body>
+</html>
