@@ -12,7 +12,6 @@
       --ribbon:#FFB7E6; --ribbon-dark:#D78CC0;
       --radius:14px; --shadow:6px 6px 0 var(--ink);
       --ph-high:#7bd389; --ph-mid:#ffd166; --ph-low:#9bb5ff; --ph-pms:#ff8fb7; --ph-period:#c084fc;
-      --tile-size:48px; --board-size:420px;
     }
     *{ box-sizing:border-box; } html,body{ height:100%; }
     body{
@@ -26,6 +25,7 @@
       line-height:1.6;
     }
     .wrap{ max-width:1000px; margin:0 auto; padding:18px 14px 120px; }
+
     .hero{
       background: radial-gradient(circle at 12% -10%, #fff8fd 0 40%, transparent 41%), var(--panel);
       border:4px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow);
@@ -39,6 +39,7 @@
     .hero:after{ right:14px; } .hero:before{ left:14px; transform:rotate(3deg); }
     h1{ margin:0 0 8px; font-size:18px; }
     .tag{ font-size:12px; color:#7b3a63; margin:0; }
+
     .panel{
       background:var(--panel); border:4px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow);
       padding:16px; margin:16px 0; position:relative;
@@ -64,34 +65,11 @@
     }
     .btn:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 var(--btn-border); }
     .btn.ghost{ background:#fff; color:var(--btn-text); }
+    .btn[disabled]{ opacity:.5; cursor:not-allowed; }
 
     .readout{ text-align:center; font-size:12px; margin-top:10px; }
 
-    .board-wrap{ display:flex; justify-content:center; }
-    .board{
-      position:relative; width:var(--board-size); height:var(--board-size); margin:auto; border-radius:50%;
-      background: radial-gradient(transparent 56%, rgba(0,0,0,0.05) 57% 58%, transparent 59%);
-    }
-    .tile{
-      position:absolute; width:var(--tile-size); height:var(--tile-size);
-      border:2px solid var(--ink); border-radius:12px; background:#fff;
-      display:grid; place-items:center; font-size:10px; box-shadow:2px 2px 0 rgba(0,0,0,.15);
-      transform: translate(-50%, -50%);
-    }
-    .tile .n{ font-size:10px; }
-    .tile[data-exp="high"] { background: var(--ph-high); }
-    .tile[data-exp="mid"] { background: var(--ph-mid); }
-    .tile[data-exp="low"] { background: var(--ph-low); }
-    .tile[data-exp="pms"] { background: var(--ph-pms); }
-    .tile[data-exp="period"] { background: var(--ph-period); color:#fff; }
-
-    .avatar{
-      position:absolute; width:36px; height:36px; border-radius:10px; border:3px solid var(--ink);
-      background:#fff; display:grid; place-items:center; font-size:18px;
-      box-shadow:4px 4px 0 var(--ink); transform: translate(-50%, -50%); z-index:3;
-    }
-    .avatar.glow{ box-shadow:0 0 0 4px #fff, 6px 6px 0 var(--ink); }
-
+    /* mood picker */
     .mood-box{ margin-top:12px; border:3px solid var(--ink); border-radius:12px; padding:12px; background:#fff; box-shadow:3px 3px 0 var(--ink); }
     .mood-rows{ display:grid; gap:10px; }
     .mood-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
@@ -104,16 +82,43 @@
       box-shadow:2px 2px 0 rgba(0,0,0,.15);
     }
     .emoji-btn.active{ outline:3px dashed var(--ribbon-dark); outline-offset:2px; background:#fff7fd; }
+    .emoji-btn[disabled]{ opacity:.45; cursor:not-allowed; filter:grayscale(.2); }
 
-    .calendar{ display:grid; gap:8px; grid-template-columns: repeat(7, 1fr); border:2px solid var(--ink); border-radius:12px; padding:10px; background:#fff; }
+    /* calendar */
+    .calendar{
+      display:grid; gap:8px; grid-template-columns: repeat(7, 1fr);
+      border:2px solid var(--ink); border-radius:12px; padding:10px; background:#fff;
+    }
     .cal-head{ font-weight:bold; background:#fff4f8; }
-    .cal-cell{ border:2px solid #f2c1d7; border-radius:10px; min-height:76px; padding:8px; position:relative; font-size:10px; background:#fff; }
+    .cal-cell{ border:2px solid #f2c1d7; border-radius:12px; min-height:92px; padding:8px; position:relative; font-size:10px; background:#fff; cursor:pointer; }
     .cal-cell .day{ position:absolute; top:6px; right:8px; opacity:.6; }
     .pill-tag{ position:absolute; bottom:6px; left:6px; padding:3px 6px; border:2px solid var(--ink); border-radius:8px; background:#fff; font-size:10px; }
-    .mood-mark{ position:absolute; bottom:6px; right:6px; font-size:14px; }
-    .mood-extra{ position:absolute; bottom:6px; right:28px; font-size:12px; opacity:.7; }
+    .mood-mark{ position:absolute; bottom:8px; right:8px; font-size:14px; text-align:right; }
+    .mood-extra{ position:absolute; bottom:6px; right:8px; font-size:12px; opacity:.7; transform:translateY(16px); }
 
-    /* error overlay */
+    /* phase tinting */
+    .cal-cell[data-exp="high"] { background: linear-gradient(#fff, #eafff1); }
+    .cal-cell[data-exp="mid"] { background: linear-gradient(#fff, #fff3d6); }
+    .cal-cell[data-exp="low"] { background: linear-gradient(#fff, #ecf1ff); }
+    .cal-cell[data-exp="pms"] { background: linear-gradient(#fff, #ffe4ee); }
+    .cal-cell[data-exp="period"] { background: linear-gradient(#fff, #f3e8ff); }
+
+    /* today indicator on selected/viewed cell */
+    .today-ring{
+      position:absolute; inset:4px; border:3px dashed var(--ribbon-dark); border-radius:10px; pointer-events:none;
+      box-shadow:inset 0 0 0 3px rgba(255,255,255,.6);
+    }
+    .today-emoji{
+      position:absolute; top:8px; left:8px; font-size:18px;
+      background:#fff; border:2px solid var(--ink); border-radius:10px; padding:2px 6px; box-shadow:2px 2px 0 var(--ink);
+    }
+
+    .thanks{
+      margin-top:10px; text-align:center; font-size:11px; color:#5a2145;
+      background:var(--ribbon); border:3px solid var(--ink); border-radius:12px; padding:8px; display:inline-block;
+      box-shadow:4px 4px 0 var(--ink);
+    }
+
     #err{
       position:fixed; left:12px; bottom:12px; max-width:92vw;
       background:#fff3f3; color:#8a1f1f; border:3px solid #d66; border-radius:12px;
@@ -126,9 +131,10 @@
   <div class="wrap">
     <header class="hero">
       <h1>Triquilar-28 Cute Tracker</h1>
-      <p class="tag">Pixel board · multi-emoji moods · auto-calibration 🎀</p>
+      <p class="tag">Pixel calendar · multi-emoji moods · submit once per day 🎀</p>
     </header>
 
+    <!-- Controls -->
     <section class="panel">
       <h2 class="section-title">🎀 Your Pack</h2>
       <div class="controls">
@@ -141,6 +147,13 @@
           <label for="pillToday">I’m on pill:</label>
           <select id="pillToday"></select>
           <button class="btn" id="setFromPill">Set from today</button>
+        </div>
+
+        <!-- NEW: pick any date to view/edit -->
+        <div class="field">
+          <label for="viewDate">View date:</label>
+          <input type="date" id="viewDate" />
+          <button class="btn" id="jumpToView">Open</button>
         </div>
 
         <div class="field">
@@ -158,46 +171,45 @@
 
       <div class="readout"><div id="summary"></div></div>
 
+      <!-- Emoji mood picker -->
       <div class="mood-box">
         <div class="mood-rows" id="moodRows"></div>
-        <div class="readout" style="opacity:.8">Pick up to <b>5</b> emojis that fit your day. Toggle to select/unselect.</div>
-      </div>
-    </section>
+        <div class="readout" id="moodHint" style="opacity:.8">Select up to <b>5</b> emojis that fit your day.</div>
 
-    <section class="panel">
-      <h2 class="section-title">🧭 Daily Board (28 tiles)</h2>
-      <div class="board-wrap">
-        <div class="board" id="board">
-          <div class="avatar" id="avatar">🌸</div>
+        <!-- NEW: submit to lock the day -->
+        <div class="readout">
+          <button class="btn" id="submitDay">Submit today’s mood</button>
+        </div>
+
+        <div class="readout" id="lockMsg" style="display:none;">
+          <span class="thanks">♡ thanks! your submission is saved for this date ♡</span>
         </div>
       </div>
     </section>
 
+    <!-- Calendar -->
     <section class="panel">
       <h2 class="section-title">🗓 Monthly Calendar</h2>
       <div id="calendar" class="calendar" aria-label="Month view"></div>
       <p class="readout" id="calLabel"></p>
     </section>
 
-    <footer class="footer-note">♡ all data stays in your browser (localStorage) ♡</footer>
+    <footer class="footer-note readout">♡ all data stays in your browser (localStorage) ♡</footer>
   </div>
 
-  <!-- error overlay -->
   <div id="err"></div>
 
   <script>
   (function(){
-    // ------- tiny error overlay so we see issues instead of "nothing works"
     const errBox = document.getElementById('err');
     window.addEventListener('error', (e)=>{
       errBox.textContent = 'Script error: ' + (e.message || e.toString());
       errBox.style.display = 'block';
     });
 
-    // ---------------- CONFIG ----------------
+    /* ------------ CONFIG ------------ */
     const PACK = 28;
     const MAX_EMOJIS_PER_DAY = 5;
-
     const PHASES = [
       { key:'high', label:'High energy', emojis:['💖','🎀','🍸','🌹','✨','👗','💄','🌞','🎉','💃','🍓','💍'], range:[ 1, 6] },
       { key:'mid', label:'Normal', emojis:['☕','📚','🌷','📝','📒','🧺','🧠','🧃','🌤️','🧹','🫧','🗂️'], range:[ 7,11] },
@@ -205,151 +217,130 @@
       { key:'pms', label:'PMS', emojis:['💢','🍫','😭','🔥','🎨','🤯','😤','🧃','🌪️','🥀','😵‍💫','🙅‍♀️'], range:[18,23] },
       { key:'period', label:'Period', emojis:['🩸','🛁','🌸','🫖','🧘‍♀️','🩹','🥣','🧴','🧣','🛋️','🌙','🧁'], range:[24,28] },
     ];
+    const MIN_STRONG_COUNT = 2, MIN_TOTAL_FOR_RATIO = 4, MIN_TOP_SHARE = 0.6;
 
-    // learning thresholds
-    const MIN_STRONG_COUNT = 2;
-    const MIN_TOTAL_FOR_RATIO = 4;
-    const MIN_TOP_SHARE = 0.6;
-
-    // storage keys
+    /* ------------ Storage keys ------------ */
     const LS_START = 'triq28_start_iso';
-    const LS_MOODS = 'triq28_moods_v2_multi';
+    const LS_MOODS = 'triq28_moods_v4_submit_lock'; // { 'YYYY-MM-DD': { emojis:[], phase:'', locked:true? } }
     const LS_LEARN = 'triq28_learn_v1';
 
-    // DOM
+    /* ------------ DOM ------------ */
     const startInput = document.getElementById('startDate');
     const pillTodaySel = document.getElementById('pillToday');
     const setFromPillBtn = document.getElementById('setFromPill');
+    const viewDateInput = document.getElementById('viewDate');
+    const jumpToViewBtn = document.getElementById('jumpToView');
     const prevBtn = document.getElementById('prevDay');
     const nextBtn = document.getElementById('nextDay');
     const todayBtn = document.getElementById('goToday');
     const resetMoodBtn = document.getElementById('resetMood');
     const statsBtn = document.getElementById('showStats');
     const resetLearnBtn = document.getElementById('resetLearn');
+    const submitDayBtn = document.getElementById('submitDay');
 
     const summaryEl = document.getElementById('summary');
-    const boardEl = document.getElementById('board');
-    const avatarEl = document.getElementById('avatar');
     const calendarEl = document.getElementById('calendar');
     const calLabelEl = document.getElementById('calLabel');
     const moodRowsEl = document.getElementById('moodRows');
+    const moodHintEl = document.getElementById('moodHint');
+    const lockMsgEl = document.getElementById('lockMsg');
 
-    let viewOffset = 0;
+    let viewDateOffset = 0; // days from today for the "viewed" date
 
-    // ---------------- Utils ----------------
-    function dateToISO(d){
-      const y=d.getFullYear(), m=(d.getMonth()+1).toString().padStart(2,'0'), day=d.getDate().toString().padStart(2,'0');
-      return `${y}-${m}-${day}`;
-    }
-    function dateFromISO(s){
-      if(!s) return null;
-      const [y,m,d] = s.split('-').map(n=>parseInt(n,10));
-      if(!y||!m||!d) return null;
-      return new Date(y, m-1, d);
-    }
-    function daysBetweenLocal(a,b){
-      const a0=new Date(a.getFullYear(),a.getMonth(),a.getDate());
-      const b0=new Date(b.getFullYear(),b.getMonth(),b.getDate());
-      return Math.round((b0 - a0) / 86400000);
-    }
-    function pillForDate(start, date){
-      const diff = daysBetweenLocal(start, date);
-      const mod = ((diff % PACK) + PACK) % PACK;
-      return mod + 1;
-    }
-    function basePhaseForPill(pill){
-      for(const p of PHASES){ const [lo,hi]=p.range; if(pill>=lo && pill<=hi) return p.key; }
-      return 'mid';
-    }
+    /* ------------ utils ------------ */
+    function toISO(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+    function fromISO(s){ if(!s) return null; const [y,m,d]=s.split('-').map(n=>parseInt(n,10)); if(!y||!m||!d) return null; return new Date(y,m-1,d); }
+    function daysBetweenLocal(a,b){ const a0=new Date(a.getFullYear(),a.getMonth(),a.getDate()); const b0=new Date(b.getFullYear(),b.getMonth(),b.getDate()); return Math.round((b0-a0)/86400000); }
+    function pillForDate(start,date){ const diff=daysBetweenLocal(start,date); const mod=((diff%PACK)+PACK)%PACK; return mod+1; }
+    function basePhaseForPill(p){ for(const ph of PHASES){ const [lo,hi]=ph.range; if(p>=lo&&p<=hi) return ph.key; } return 'mid'; }
 
-    // ---------------- Storage ----------------
-    function getSavedStart(){ return dateFromISO(localStorage.getItem(LS_START)); }
-    function setSavedStart(d){ localStorage.setItem(LS_START, dateToISO(d)); startInput.value = dateToISO(d); }
-
-    function loadJSON(key, fallback){
-      try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
-      catch{ return fallback; }
-    }
-    function saveJSON(key, obj){ localStorage.setItem(key, JSON.stringify(obj)); }
-
+    /* ------------ storage ------------ */
+    function getSavedStart(){ return fromISO(localStorage.getItem(LS_START)); }
+    function setSavedStart(d){ localStorage.setItem(LS_START, toISO(d)); startInput.value = toISO(d); }
+    function loadJSON(k,f){ try{ const raw=localStorage.getItem(k); return raw?JSON.parse(raw):f; }catch{ return f; } }
+    function saveJSON(k,o){ localStorage.setItem(k, JSON.stringify(o)); }
     function loadMoods(){ return loadJSON(LS_MOODS, {}); }
     function saveMoods(o){ saveJSON(LS_MOODS, o); }
-
-    function loadLearn(){
-      const o = loadJSON(LS_LEARN, {stats:{}, learned:{}});
-      if(!o.stats) o.stats = {};
-      if(!o.learned) o.learned = {};
-      return o;
-    }
-    function saveLearn(o){ saveJSON(LS_LEARN, o); }
+    function loadLearn(){ const o=loadJSON(LS_LEARN,{stats:{},learned:{}}); if(!o.stats) o.stats={}; if(!o.learned) o.learned={}; return o; }
+    function saveLearn(o){ saveJSON(LS_LEARN,o); }
     function resetLearning(){ saveLearn({stats:{}, learned:{}}); }
 
-    // ---------------- Learning ----------------
-    function updateLearningFor(dateIso, pill, chosenPhase){
-      const learn = loadLearn();
-      const key = String(pill);
+    /* ------------ learning ------------ */
+    function updateLearningFor(pill, chosenPhase){
+      const learn=loadLearn(); const key=String(pill);
       if(!learn.stats[key]) learn.stats[key] = {high:0, mid:0, low:0, pms:0, period:0};
       learn.stats[key][chosenPhase] = (learn.stats[key][chosenPhase]||0) + 1;
-
-      const c = learn.stats[key];
-      const total = Object.values(c).reduce((s,n)=>s+n,0);
-      let top=''; let topCount=-1; let second=-1;
-      for(const ph of Object.keys(c)){
-        const v=c[ph];
-        if(v>topCount){ second = topCount; topCount=v; top=ph; }
-        else if(v>second){ second=v; }
-      }
-      const strong = (topCount>=MIN_STRONG_COUNT && topCount>second);
-      const ratio = (total>=MIN_TOTAL_FOR_RATIO && (topCount/total)>=MIN_TOP_SHARE);
-      if(strong || ratio) learn.learned[key] = top;
-
+      const c=learn.stats[key]; const total=Object.values(c).reduce((s,n)=>s+n,0);
+      let top='', topCount=-1, second=-1;
+      for(const ph of Object.keys(c)){ const v=c[ph]; if(v>topCount){ second=topCount; topCount=v; top=ph; } else if(v>second){ second=v; } }
+      if((topCount>=MIN_STRONG_COUNT && topCount>second) || (total>=MIN_TOTAL_FOR_RATIO && topCount/total>=MIN_TOP_SHARE)){ learn.learned[key]=top; }
       saveLearn(learn);
     }
-    function expectedPhaseForPill(pill){
-      const learned = loadLearn().learned[String(pill)];
-      return learned || basePhaseForPill(pill);
-    }
+    function expectedPhaseForPill(p){ const learned=loadLearn().learned[String(p)]; return learned || basePhaseForPill(p); }
 
-    // ---------------- Mood selection (multi) ----------------
-    function toggleEmojiForDate(targetDate, phaseKey, emoji){
+    /* ------------ moods (multi-select + submit lock) ------------ */
+    function currentViewedDate(){ const base=new Date(); base.setDate(base.getDate()+viewDateOffset); return base; }
+
+    function toggleEmojiForDate(date, phaseKey, emoji){
+      const k = toISO(date);
       const moods = loadMoods();
-      const k = dateToISO(targetDate);
-      const entry = moods[k] || { emojis:[], phase:phaseKey };
+      const entry = moods[k] || {emojis:[], phase:phaseKey, locked:false};
+
+      if(entry.locked){ return; }
 
       const idx = entry.emojis.indexOf(emoji);
-      if(idx>=0){
-        entry.emojis.splice(idx,1);
-      }else{
-        if(entry.emojis.length >= 5){
-          alert('You can select up to 5 emojis for a day.');
+      if(idx>=0){ entry.emojis.splice(idx,1); }
+      else{
+        if(entry.emojis.length >= MAX_EMOJIS_PER_DAY){
+          alert('Max 5 emojis — submit when ready 💖');
           return;
         }
         entry.emojis.push(emoji);
       }
 
-      // pick phase by majority of selected emoji rows
+      // recompute day phase by majority
       const counts = {high:0, mid:0, low:0, pms:0, period:0};
-      entry.emojis.forEach(em=>{
-        for(const p of PHASES){ if(p.emojis.includes(em)){ counts[p.key]++; break; } }
-      });
-      let chosenPhase = phaseKey, best=-1;
-      for(const ph of Object.keys(counts)){ if(counts[ph]>best){ best=counts[ph]; chosenPhase=ph; } }
+      entry.emojis.forEach(em=>{ for(const p of PHASES){ if(p.emojis.includes(em)){ counts[p.key]++; break; } } });
+      let chosen = phaseKey, best=-1;
+      for(const ph of Object.keys(counts)){ if(counts[ph]>best){ best=counts[ph]; chosen=ph; } }
+      entry.phase = chosen;
 
-      entry.phase = chosenPhase;
-      moods[k] = entry;
-      saveMoods(moods);
-
-      const packStart = dateFromISO(startInput.value);
-      const pill = pillForDate(packStart, targetDate);
-      if(entry.emojis.length>0) updateLearningFor(k, pill, chosenPhase);
+      moods[k] = entry; saveMoods(moods);
     }
 
-    // ---------------- UI builders ----------------
-    function renderMoodRows(currentDate, expectedPhaseKey){
-      moodRowsEl.innerHTML = '';
+    function submitDay(date){
+      const k = toISO(date);
       const moods = loadMoods();
-      const k = dateToISO(currentDate);
-      const current = (moods[k] && moods[k].emojis) ? moods[k].emojis : [];
+      const entry = moods[k] || {emojis:[], phase:expectedPhaseForPill(pillForDate(getSavedStart(), date)), locked:false};
+
+      if(entry.emojis.length === 0){
+        alert('Pick at least one emoji before submitting 🌸');
+        return;
+      }
+      entry.locked = true;
+      moods[k] = entry; saveMoods(moods);
+
+      // learn from submitted phase
+      const start = getSavedStart(); const pill = pillForDate(start, date);
+      updateLearningFor(pill, entry.phase);
+    }
+
+    /* ------------ UI builders ------------ */
+    function renderMoodRows(date, expectedPhaseKey){
+      moodRowsEl.innerHTML = '';
+      const k = toISO(date);
+      const moods = loadMoods();
+      const entry = moods[k] || {emojis:[], phase:expectedPhaseKey, locked:false};
+      const selected = entry.emojis || [];
+      const locked = !!entry.locked;
+
+      // hint + submit state
+      moodHintEl.innerHTML = locked
+        ? `Submitted (${selected.length}/5) — locked`
+        : `Selected ${selected.length}/${MAX_EMOJIS_PER_DAY}`;
+
+      lockMsgEl.style.display = locked ? 'block' : 'none';
+      submitDayBtn.disabled = locked;
 
       PHASES.forEach(p=>{
         const row = document.createElement('div');
@@ -363,8 +354,13 @@
         p.emojis.forEach(em=>{
           const btn = document.createElement('button');
           btn.type='button'; btn.className='emoji-btn'; btn.textContent=em;
-          if(current.includes(em)) btn.classList.add('active');
-          btn.addEventListener('click', ()=>{ toggleEmojiForDate(currentDate, p.key, em); updateAll(); });
+          if(selected.includes(em)) btn.classList.add('active');
+          if(locked) btn.setAttribute('disabled','');
+          btn.addEventListener('click', ()=>{
+            if(locked) return;
+            toggleEmojiForDate(date, p.key, em);
+            updateAll(); // re-render counts and active state
+          });
           row.appendChild(btn);
         });
 
@@ -379,59 +375,30 @@
       });
     }
 
-    function renderBoard(currentPill, avatarEmoji, glow){
-      [...boardEl.querySelectorAll('.tile')].forEach(n=>n.remove());
-      const size = Math.min(boardEl.clientWidth||420, boardEl.clientHeight||420);
-      const cx=size/2, cy=size/2;
-      const r=(size/2)-24;
-
-      for(let i=1;i<=PACK;i++){
-        const theta=(i-1)*(2*Math.PI/PACK)-Math.PI/2;
-        const x=cx+r*Math.cos(theta), y=cy+r*Math.sin(theta);
-        const exp = expectedPhaseForPill(i);
-
-        const t=document.createElement('div');
-        t.className='tile'; t.dataset.exp=exp;
-        t.style.left=x+'px'; t.style.top=y+'px';
-        t.innerHTML=`<div class="n">★ ${i}</div>`;
-        boardEl.appendChild(t);
-
-        if(i===currentPill){
-          avatarEl.style.left=x+'px'; avatarEl.style.top=y+'px';
-          avatarEl.textContent = avatarEmoji || '🌸';
-          avatarEl.classList.toggle('glow', glow);
-          avatarEl.title = 'Pill '+i+' ('+exp+')';
-        }
-      }
-    }
-
-    function renderSummary(packStart, date){
-      const pill = pillForDate(packStart, date);
+    function renderSummary(start, date){
+      const pill = pillForDate(start, date);
       const exp = expectedPhaseForPill(pill);
       const base = basePhaseForPill(pill);
 
       const moods = loadMoods();
-      const entry = moods[dateToISO(date)];
-      const showEmoji = (entry && entry.emojis && entry.emojis.length) ? entry.emojis[0] : '🌸';
-      const chosenPhase = (entry && entry.phase) ? entry.phase : exp;
+      const entry = moods[toISO(date)];
+      const chosenPhase = entry?.phase || exp;
+
+      const combo = (entry?.emojis||[]).slice(0,5).join(' ');
       const flag = (exp!==base) ? ' (learned)' : ' (base)';
 
-      const combo = (entry && entry.emojis ? entry.emojis.slice(0,5).join(' ') : '');
-      const more = (entry && entry.emojis && entry.emojis.length>5) ? (' +' + (entry.emojis.length-5)) : '';
-
       summaryEl.innerHTML =
-        '<div><strong>'+dateToISO(date)+'</strong> · Pill <strong>'+pill+
-        '</strong> / '+PACK+'</div>'+
-        '<div style="margin-top:6px;">Expected: <strong>'+exp.toUpperCase()+'</strong>'+flag+'</div>'+
-        '<div style="margin-top:6px;">Today: <strong>'+chosenPhase.toUpperCase()+'</strong> '+(entry?'(custom)':'(expected)')+'</div>'+
-        '<div style="margin-top:6px; font-size:18px;">'+(combo || '🌸')+more+'</div>';
-      return { pill, expKey: exp, avatarEmoji: showEmoji };
+        `<div><strong>${toISO(date)}</strong> · Pill <strong>${pill}</strong> / ${PACK}</div>
+         <div style="margin-top:6px;">Expected: <strong>${exp.toUpperCase()}</strong>${flag}</div>
+         <div style="margin-top:6px;">This date: <strong>${(entry ? chosenPhase : exp).toUpperCase()}</strong> ${entry?'(custom)':'(expected)'}</div>
+         <div style="margin-top:6px; font-size:18px;">${combo || '🌸'}</div>`;
+      return { pill, expKey: exp, avatarEmoji: (entry?.emojis?.[0] || '🌸') };
     }
 
-    function renderCalendar(packStart, monthDate){
+    function renderCalendar(start, monthDate, focusDate){
       calendarEl.innerHTML='';
       const y=monthDate.getFullYear(), m=monthDate.getMonth();
-      calLabelEl.textContent = y+'-'+String(m+1).padStart(2,'0');
+      calLabelEl.textContent = `${y}-${String(m+1).padStart(2,'0')}`;
 
       ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(n=>{
         const h=document.createElement('div'); h.className='cal-cell cal-head'; h.textContent=n; calendarEl.appendChild(h);
@@ -443,87 +410,100 @@
       const moods=loadMoods();
       for(let d=1; d<=dim; d++){
         const date=new Date(y,m,d);
-        const pill=pillForDate(packStart,date);
+        const pill=pillForDate(start,date);
         const exp = expectedPhaseForPill(pill);
-        const entry = moods[dateToISO(date)];
+        const k = toISO(date);
+        const entry = moods[k];
 
-        const cell=document.createElement('div'); cell.className='cal-cell'; cell.dataset.exp=(entry && entry.phase) ? entry.phase : exp;
+        const cell=document.createElement('div');
+        cell.className='cal-cell'; cell.dataset.exp=entry?.phase || exp;
+
         const dn=document.createElement('div'); dn.className='day'; dn.textContent=d; cell.appendChild(dn);
-        const tag=document.createElement('div'); tag.className='pill-tag'; tag.textContent='P'+pill; cell.appendChild(tag);
+        const tag=document.createElement('div'); tag.className='pill-tag'; tag.textContent=`P${pill}`; cell.appendChild(tag);
 
-        if(entry && entry.emojis && entry.emojis.length){
+        if(entry?.emojis?.length){
           const show = entry.emojis.slice(0,3).join(' ');
-          const extra = entry.emojis.length>3 ? (' +'+(entry.emojis.length-3)) : '';
-          const em=document.createElement('div'); em.className='mood-mark'; em.textContent=show; cell.appendChild(em);
-          if(extra){
-            const ex=document.createElement('div'); ex.className='mood-extra'; ex.textContent=extra; cell.appendChild(ex);
-          }
+          const extra = entry.emojis.length>3 ? ` +${entry.emojis.length-3}` : '';
+          const em=document.createElement('div'); em.className='mood-mark'; em.textContent=show+extra; cell.appendChild(em);
         }
+
+        // click any date to view/edit that date
+        cell.addEventListener('click', ()=>{
+          const today = new Date();
+          viewDateOffset = daysBetweenLocal(today, date);
+          updateAll();
+        });
+
+        if(toISO(date) === toISO(focusDate)){
+          const ring=document.createElement('div'); ring.className='today-ring'; cell.appendChild(ring);
+          const em = (entry?.emojis?.[0] || '🌸');
+          const chip=document.createElement('div'); chip.className='today-emoji'; chip.textContent=em; cell.appendChild(chip);
+        }
+
         calendarEl.appendChild(cell);
       }
     }
 
-    // ---------------- Init + Controls ----------------
+    /* ------------ init & controls ------------ */
+    function populatePillSelector(){ pillTodaySel.innerHTML = Array.from({length:PACK},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join(''); }
+    function initStart(){ const saved=getSavedStart(); if(saved) startInput.value = toISO(saved); else { const t=new Date(); setSavedStart(t); } }
+    function syncViewDateInput(){ const d=currentViewedDate(); viewDateInput.value = toISO(d); }
+
     function setStartFromPillToday(pillNumber){
       const today = new Date();
       const start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (Number(pillNumber) - 1));
-      setSavedStart(start);
-      viewOffset = 0;
-      updateAll();
+      setSavedStart(start); viewDateOffset=0; updateAll();
     }
 
     function showCalibrationStats(){
-      const learn = loadLearn();
-      const learnedCount = Object.keys(learn.learned).length;
-      const diffs = [];
-      for(let i=1;i<=PACK;i++){
-        const exp = expectedPhaseForPill(i);
-        const base = basePhaseForPill(i);
-        if(exp!==base) diffs.push('P'+i+':'+base+'→'+exp);
-      }
-      alert('Learned pills: '+learnedCount+'/'+PACK+'\n' + (diffs.length? ('Overrides: '+diffs.join(', ')) : 'No overrides yet — keep logging!'));
+      const learn = loadLearn(); const learnedCount=Object.keys(learn.learned).length; const diffs=[];
+      for(let i=1;i<=PACK;i++){ const exp=expectedPhaseForPill(i), base=basePhaseForPill(i); if(exp!==base) diffs.push(`P${i}:${base}→${exp}`); }
+      alert(`Learned pills: ${learnedCount}/${PACK}\n` + (diffs.length? `Overrides: ${diffs.join(', ')}` : 'No overrides yet — keep logging!'));
     }
-
-    function populatePillSelector(){
-      pillTodaySel.innerHTML = Array.from({length:PACK},(_,i)=>'<option value="'+(i+1)+'">'+(i+1)+'</option>').join('');
-    }
-
-    function initStart(){
-      const saved = getSavedStart();
-      if(saved) startInput.value = dateToISO(saved);
-      else { const t=new Date(); setSavedStart(t); }
-    }
-
-    function currentViewedDate(){ const base=new Date(); base.setDate(base.getDate()+viewOffset); return base; }
 
     function updateAll(){
-      const packStart = dateFromISO(startInput.value);
-      if(!packStart){ return; }
+      const start = fromISO(startInput.value); if(!start) return;
+      const focusDate = currentViewedDate();
+      const monthAnchor = new Date(focusDate.getFullYear(), focusDate.getMonth(), 1);
 
-      const viewDate = currentViewedDate();
-      const res = renderSummary(packStart, viewDate);
-      renderBoard(res.pill, res.avatarEmoji, res.expKey==='high');
-      renderMoodRows(viewDate, res.expKey);
-      renderCalendar(packStart, new Date(viewDate.getFullYear(), viewDate.getMonth(), 1));
+      const {pill, expKey} = renderSummary(start, focusDate);
+      renderMoodRows(focusDate, expKey);
+      renderCalendar(start, monthAnchor, focusDate);
 
-      const todayPill = pillForDate(packStart, new Date());
+      // keep pill selector synced to actual today
+      const todayPill = pillForDate(start, new Date());
       pillTodaySel.value = String(todayPill);
+
+      // keep the viewDate input synced to focused date
+      syncViewDateInput();
     }
 
-    // wire up
+    // wire it up
     populatePillSelector();
     initStart();
     updateAll();
 
-    startInput.addEventListener('change', ()=>{ const d=dateFromISO(startInput.value); if(d){ setSavedStart(d); viewOffset=0; updateAll(); } });
-    prevBtn.addEventListener('click', ()=>{ viewOffset -= 1; updateAll(); });
-    nextBtn.addEventListener('click', ()=>{ viewOffset += 1; updateAll(); });
-    todayBtn.addEventListener('click', ()=>{ viewOffset = 0; updateAll(); });
+    startInput.addEventListener('change', ()=>{ const d=fromISO(startInput.value); if(d){ setSavedStart(d); viewDateOffset=0; updateAll(); } });
 
-    setFromPillBtn.addEventListener('click', ()=>{ const n = Number(pillTodaySel.value); if(n>=1 && n<=PACK) setStartFromPillToday(n); });
+    prevBtn.addEventListener('click', ()=>{ viewDateOffset -= 1; updateAll(); });
+    nextBtn.addEventListener('click', ()=>{ viewDateOffset += 1; updateAll(); });
+    todayBtn.addEventListener('click', ()=>{ viewDateOffset = 0; updateAll(); });
+
+    setFromPillBtn.addEventListener('click', ()=>{ const n=Number(pillTodaySel.value); if(n>=1&&n<=PACK) setStartFromPillToday(n); });
+
+    jumpToViewBtn.addEventListener('click', ()=>{
+      const picked = fromISO(viewDateInput.value); if(!picked) return;
+      const today = new Date(); viewDateOffset = daysBetweenLocal(today, picked); updateAll();
+    });
+
+    submitDayBtn.addEventListener('click', ()=>{
+      const d=currentViewedDate();
+      submitDay(d);
+      updateAll();
+    });
 
     resetMoodBtn.addEventListener('click', ()=>{
-      const moods=loadMoods(); const k=dateToISO(currentViewedDate());
+      const k=toISO(currentViewedDate()); const moods=loadMoods();
       if(moods[k]){ delete moods[k]; saveMoods(moods); updateAll(); }
     });
 
