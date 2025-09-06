@@ -7,278 +7,522 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg: #ffeef7;
-      --ink: #4b1e2f;
-      --pink: #f8cde0;
-      --btn-bg: #fdd9ec;
-      --btn-border: #e59bc7;
-      --btn-hover: #ffebf5;
-      --ribbon-dark: #d77fb0;
+      --pink:#FFE3F3; --ink:#0b0f14; --panel:#fff; --grid:#ffeef8;
+      --btn-bg:#FFCAE9; --btn-border:#E3A8CF; --btn-text:#5a2145;
+      --ribbon:#FFB7E6; --ribbon-dark:#D78CC0;
+      --radius:14px; --shadow:6px 6px 0 var(--ink);
+      --ph-high:#7bd389; --ph-mid:#ffd166; --ph-low:#9bb5ff; --ph-pms:#ff8fb7; --ph-period:#c084fc;
     }
+    *{ box-sizing:border-box; } html,body{ height:100%; }
     body{
-      margin:0; font-family:'Press Start 2P', cursive; background:var(--bg); color:var(--ink);
+      margin:0;
+      background:
+        repeating-linear-gradient(0deg, var(--grid) 0 2px, transparent 2px 22px),
+        repeating-linear-gradient(90deg, var(--grid) 0 2px, transparent 2px 22px),
+        var(--pink);
+      color:var(--ink);
+      font-family:'Press Start 2P', system-ui, sans-serif;
+      line-height:1.6;
     }
-    .wrap{max-width:880px;margin:auto;padding:12px;}
-    .hero{text-align:center;margin-bottom:14px;}
-    h1{font-size:18px;margin:8px 0;color:var(--ink);}
-    .tag{font-size:10px;opacity:.8;}
+    .wrap{ max-width:1000px; margin:0 auto; padding:18px 14px 120px; }
 
-    .panel{background:#fff;border:3px solid var(--ink);border-radius:12px;box-shadow:4px 4px 0 var(--ink);margin-bottom:18px;padding:10px;position:relative;}
-    .section-title{font-size:12px;margin:0 0 10px 0;color:var(--ink);}
-    .controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;}
-    .field{display:flex;flex-direction:column;font-size:9px;gap:3px;}
-    .btn{font-family:inherit;font-size:9px;padding:6px 8px;background:var(--btn-bg);border:2px solid var(--btn-border);border-radius:8px;cursor:pointer;}
-    .btn:hover{background:var(--btn-hover);}
-    .readout{font-size:10px;margin-top:8px;}
-    .thanks{color:var(--ribbon-dark);}
+    /* sparkly header ribbon */
+    .hero{
+      background: radial-gradient(circle at 12% -10%, #fff8fd 0 40%, transparent 41%), var(--panel);
+      border:4px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:20px 18px 14px; text-align:center; position:relative;
+    }
+    .hero:before,.hero:after{
+      content:"🎀✨"; position:absolute; top:-14px; font-size:18px;
+      background:var(--ribbon); border:3px solid var(--ink); border-radius:12px; padding:2px 8px;
+      box-shadow:4px 4px 0 var(--ink); transform:rotate(-3deg);
+    }
+    .hero:after{ right:14px; } .hero:before{ left:14px; transform:rotate(3deg); }
+    h1{ margin:0 0 8px; font-size:18px; }
+    .tag{ font-size:12px; color:#7b3a63; margin:0; }
 
-    .mood-box{margin-top:10px;}
-    .mood-rows{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;}
-    .mood-rows button{font-size:15px;padding:6px;background:#fff;border:2px solid var(--ink);border-radius:8px;cursor:pointer;}
-    .mood-rows button.active{background:var(--pink);}
-    .mood-rows button:disabled{opacity:.4;cursor:default;}
+    .panel{
+      background:var(--panel); border:4px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:16px; margin:16px 0; position:relative;
+    }
+    .panel:after{
+      content:"♥"; position:absolute; right:10px; top:-12px; background:var(--ribbon);
+      border:3px solid var(--ink); border-radius:10px; width:26px; height:26px; display:grid; place-items:center;
+      box-shadow:3px 3px 0 var(--ink);
+    }
+    .section-title{ display:flex; align-items:center; gap:8px; margin:0 0 12px; font-size:14px; color:#7b3a63; }
 
-    /* calendar */
+    .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center; }
+    .field{ display:flex; align-items:center; gap:10px; }
+    label{ font-size:11px; }
+    input[type="date"], select{
+      font:inherit; font-size:12px; padding:8px 10px; border:2px solid var(--ink); border-radius:10px; background:#fff;
+    }
+
+    .btn{
+      appearance:none; border:none; cursor:pointer; background:var(--btn-bg); color:var(--btn-text);
+      border:3px solid var(--btn-border); box-shadow:4px 4px 0 var(--btn-border);
+      border-radius:12px; padding:10px 12px; font:inherit; font-size:12px; transition:transform .02s ease-in;
+    }
+    .btn:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 var(--btn-border); }
+    .btn.ghost{ background:#fff; color:var(--btn-text); }
+    .btn[disabled]{ opacity:.5; cursor:not-allowed; }
+
+    .readout{ text-align:center; font-size:12px; margin-top:10px; }
+
+    /* mood picker */
+    .mood-box{ margin-top:12px; border:3px solid var(--ink); border-radius:12px; padding:12px; background:#fff; box-shadow:3px 3px 0 var(--ink); }
+    .mood-rows{ display:grid; gap:10px; }
+    .mood-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .mood-label{
+      font-size:10px; padding:2px 8px; border:2px solid var(--ink); border-radius:10px;
+      background:linear-gradient(#fff,#ffe6f5); color:#6b2b54;
+    }
+    .emoji-btn{
+      border:2px solid var(--ink); border-radius:10px; padding:6px 8px; font-size:18px; background:#fff; cursor:pointer;
+      box-shadow:2px 2px 0 rgba(0,0,0,.15);
+    }
+    .emoji-btn.active{ outline:3px dashed var(--ribbon-dark); outline-offset:2px; background:#fff7fd; }
+    .emoji-btn[disabled]{ opacity:.45; cursor:not-allowed; filter:grayscale(.2); }
+
+    /* ===== CALENDAR (only change here + media query below) ===== */
     .calendar{
-      width:100%;overflow:hidden;
-      display:grid;gap:8px;
-      grid-template-columns:repeat(7,minmax(0,1fr));
-      border:2px solid var(--ink);border-radius:12px;
-      padding:10px;background:#fff;
+      width:100%;
+      overflow:hidden; /* prevent spill on tiny screens */
+      display:grid; gap:8px;
+      grid-template-columns: repeat(7, minmax(0, 1fr)); /* fluid columns */
+      border:2px solid var(--ink); border-radius:12px; padding:10px; background:#fff;
     }
-    .cal-head{font-weight:bold;background:#fff4f8;}
-    .cal-cell{border:2px solid #f2c1d7;border-radius:12px;min-height:92px;padding:8px;position:relative;font-size:10px;background:#fff;cursor:pointer;overflow:hidden;}
-    .cal-cell .day{position:absolute;top:6px;right:8px;opacity:.6;}
-    .pill-tag{position:absolute;bottom:6px;left:6px;padding:3px 6px;border:2px solid var(--ink);border-radius:8px;background:#fff;font-size:10px;}
-    .mood-mark{position:absolute;bottom:8px;right:8px;font-size:14px;text-align:right;}
-    .mood-extra{position:absolute;bottom:6px;right:8px;font-size:12px;opacity:.7;transform:translateY(16px);}
-    .cal-cell[data-exp="high"] {background:linear-gradient(#fff,#eafff1);}
-    .cal-cell[data-exp="mid"] {background:linear-gradient(#fff,#fff3d6);}
-    .cal-cell[data-exp="low"] {background:linear-gradient(#fff,#ecf1ff);}
-    .cal-cell[data-exp="pms"] {background:linear-gradient(#fff,#ffe4ee);}
-    .cal-cell[data-exp="period"] {background:linear-gradient(#fff,#f3e8ff);}
-    .today-ring{position:absolute;inset:4px;border:3px dashed var(--ribbon-dark);border-radius:10px;pointer-events:none;box-shadow:inset 0 0 0 3px rgba(255,255,255,.6);}
-    .today-emoji{position:absolute;top:8px;left:8px;font-size:18px;background:#fff;border:2px solid var(--ink);border-radius:10px;padding:2px 6px;box-shadow:2px 2px 0 var(--ink);}
-    @media(max-width:420px){
-      .calendar{gap:6px;padding:8px;border-radius:10px;}
-      .cal-cell{min-height:78px;padding:6px;border-radius:10px;font-size:9px;}
-      .pill-tag{padding:2px 5px;font-size:9px;}
-      .mood-mark{font-size:13px;}
-      .today-emoji{font-size:16px;}
+    .cal-head{ font-weight:bold; background:#fff4f8; }
+    .cal-cell{
+      border:2px solid #f2c1d7; border-radius:12px; min-height:92px; padding:8px; position:relative; font-size:10px; background:#fff; cursor:pointer;
+      overflow:hidden; /* keep inner bits inside corners */
+    }
+    .cal-cell .day{ position:absolute; top:6px; right:8px; opacity:.6; }
+    .pill-tag{ position:absolute; bottom:6px; left:6px; padding:3px 6px; border:2px solid var(--ink); border-radius:8px; background:#fff; font-size:10px; }
+    .mood-mark{ position:absolute; bottom:8px; right:8px; font-size:14px; text-align:right; }
+    .mood-extra{ position:absolute; bottom:6px; right:8px; font-size:12px; opacity:.7; transform:translateY(16px); }
+
+    /* phase tinting */
+    .cal-cell[data-exp="high"] { background: linear-gradient(#fff, #eafff1); }
+    .cal-cell[data-exp="mid"] { background: linear-gradient(#fff, #fff3d6); }
+    .cal-cell[data-exp="low"] { background: linear-gradient(#fff, #ecf1ff); }
+    .cal-cell[data-exp="pms"] { background: linear-gradient(#fff, #ffe4ee); }
+    .cal-cell[data-exp="period"] { background: linear-gradient(#fff, #f3e8ff); }
+
+    /* focus indicator on selected/viewed cell */
+    .today-ring{
+      position:absolute; inset:4px; border:3px dashed var(--ribbon-dark); border-radius:10px; pointer-events:none;
+      box-shadow:inset 0 0 0 3px rgba(255,255,255,.6);
+    }
+    .today-emoji{
+      position:absolute; top:8px; left:8px; font-size:18px;
+      background:#fff; border:2px solid var(--ink); border-radius:10px; padding:2px 6px; box-shadow:2px 2px 0 var(--ink);
     }
 
-    .footer-note{text-align:center;margin-top:20px;}
+    .thanks{
+      margin-top:10px; text-align:center; font-size:11px; color:#5a2145;
+      background:var(--ribbon); border:3px solid var(--ink); border-radius:12px; padding:8px; display:inline-block;
+      box-shadow:4px 4px 0 var(--ink);
+    }
+
+    /* tiny error box */
+    #err{
+      position:fixed; left:12px; bottom:12px; max-width:92vw;
+      background:#fff3f3; color:#8a1f1f; border:3px solid #d66; border-radius:12px;
+      padding:10px 12px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size:12px; box-shadow:4px 4px 0 #d66; display:none; z-index:9999;
+    }
+
+    /* ===== mobile tune-up (new) ===== */
+    @media (max-width: 420px){
+      .calendar{ gap:6px; padding:8px; border-radius:10px; }
+      .cal-cell{ min-height:78px; padding:6px; border-radius:10px; font-size:9px; }
+      .pill-tag{ padding:2px 5px; font-size:9px; }
+      .mood-mark{ font-size:13px; }
+      .today-emoji{ font-size:16px; }
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="hero">
-    <h1>Triquilar-28 Cute Tracker</h1>
-    <p class="tag">Pixel calendar · multi-emoji moods · submit once per day 🎀</p>
-  </header>
+  <div class="wrap">
+    <header class="hero">
+      <h1>Triquilar-28 Cute Tracker</h1>
+      <p class="tag">Pixel calendar · multi-emoji moods · submit once per day 🎀</p>
+    </header>
 
-  <section class="panel">
-    <h2 class="section-title">🎀 Your Pack</h2>
-    <div class="controls">
-      <div class="field">
-        <label for="startDate">Pack start (Pill 1):</label>
-        <input type="date" id="startDate" />
+    <!-- Controls -->
+    <section class="panel">
+      <h2 class="section-title">🎀 Your Pack</h2>
+      <div class="controls">
+        <div class="field">
+          <label for="startDate">Pack start (Pill 1):</label>
+          <input type="date" id="startDate" />
+        </div>
+
+        <div class="field">
+          <label for="pillToday">I’m on pill:</label>
+          <select id="pillToday"></select>
+          <button class="btn" id="setFromPill">Set from today</button>
+        </div>
+
+        <!-- View any date -->
+        <div class="field">
+          <label for="viewDate">View date:</label>
+          <input type="date" id="viewDate" />
+          <button class="btn" id="jumpToView">Open date</button>
+        </div>
       </div>
-      <div class="field">
-        <label for="pillToday">I’m on pill:</label>
-        <select id="pillToday"></select>
-        <button class="btn" id="setFromPill">Set from today</button>
+
+      <div class="readout"><div id="summary"></div></div>
+
+      <!-- Emoji mood picker -->
+      <div class="mood-box">
+        <div class="mood-rows" id="moodRows"></div>
+        <div class="readout" id="moodHint" style="opacity:.8">Select up to <b>5</b> emojis that fit your day.</div>
+
+        <!-- Submit to lock the day -->
+        <div class="readout">
+          <button class="btn" id="submitDay">Submit today’s mood</button>
+        </div>
+
+        <div class="readout" id="lockMsg" style="display:none;">
+          <span class="thanks">♡ thanks! your submission is saved for this date ♡</span>
+        </div>
       </div>
-      <div class="field">
-        <label for="viewDate">View date:</label>
-        <input type="date" id="viewDate" />
-        <button class="btn" id="jumpToView">Open date</button>
-      </div>
-    </div>
-    <div class="readout"><div id="summary"></div></div>
+    </section>
 
-    <div class="mood-box">
-      <div class="mood-rows" id="moodRows"></div>
-      <div class="readout" id="moodHint" style="opacity:.8">Select up to <b>5</b> emojis that fit your day.</div>
-      <div class="readout"><button class="btn" id="submitDay">Submit today’s mood</button></div>
-      <div class="readout" id="lockMsg" style="display:none;">
-        <span class="thanks">♡ thanks! your submission is saved for this date ♡</span>
-      </div>
-    </div>
-  </section>
+    <!-- Calendar -->
+    <section class="panel">
+      <h2 class="section-title">🗓 Monthly Calendar</h2>
+      <div id="calendar" class="calendar" aria-label="Month view"></div>
+      <p class="readout" id="calLabel"></p>
+    </section>
 
-  <section class="panel">
-    <h2 class="section-title">🗓 Monthly Calendar</h2>
-    <div id="calendar" class="calendar" aria-label="Month view"></div>
-    <p class="readout" id="calLabel"></p>
-  </section>
+    <footer class="footer-note readout">♡ all data stays in your browser (localStorage) ♡</footer>
+  </div>
 
-  <footer class="footer-note readout">♡ all data stays in your browser (localStorage) ♡</footer>
-</div>
+  <!-- error overlay -->
+  <div id="err"></div>
 
-<script>
-const startInput=document.getElementById('startDate');
-const pillTodaySel=document.getElementById('pillToday');
-const setFromPillBtn=document.getElementById('setFromPill');
-const viewDateInput=document.getElementById('viewDate');
-const jumpToViewBtn=document.getElementById('jumpToView');
-const summaryDiv=document.getElementById('summary');
-const moodRows=document.getElementById('moodRows');
-const moodHint=document.getElementById('moodHint');
-const submitDayBtn=document.getElementById('submitDay');
-const lockMsg=document.getElementById('lockMsg');
-const calendarDiv=document.getElementById('calendar');
-const calLabel=document.getElementById('calLabel');
-
-const MAX_EMOJIS_PER_DAY=5;
-
-const PHASES=[
-  {name:'high',emojis:['💖','🎀','🍸','🌹','✨','👗','💕','🥂','💄','🎉']},
-  {name:'mid',emojis:['☕','📚','🌷','📝','📒','🍵','💻','📖','🧺','😌']},
-  {name:'low',emojis:['🛏️','🧸','🍵','🕯️','😴','🥣','🎧','📺','🌙','🛋️']},
-  {name:'pms',emojis:['💢','🍫','😭','🔥','🎨','🙅‍♀️','💤','😡','🍪','💭']},
-  {name:'period',emojis:['🩸','🛁','🌸','🫖','🧘‍♀️','🌧️','🪞','🕊️','💤','💗']}
-];
-
-function iso(d){return d.toISOString().slice(0,10);}
-function setSavedStart(date){localStorage.setItem('packStart',iso(date));}
-function getSavedStart(){const v=localStorage.getItem('packStart');return v?new Date(v):null;}
-function pillForDate(start,date){const diff=Math.floor((date-start)/86400000);return (diff%28)+1;}
-function phaseForPill(n){
-  if(n<=6)return PHASES[0];
-  if(n<=11)return PHASES[1];
-  if(n<=17)return PHASES[2];
-  if(n<=23)return PHASES[3];
-  return PHASES[4];
-}
-function getMoodLog(date){const d=iso(date);const raw=localStorage.getItem('mood_'+d);return raw?JSON.parse(raw):null;}
-function setMoodLog(date,arr){localStorage.setItem('mood_'+iso(date),JSON.stringify(arr));}
-function renderMoodOptions(date,phase){
-  moodRows.innerHTML='';
-  const saved=getMoodLog(date)||[];
-  const locked=saved.length>0;
-  for(const em of phase.emojis){
-    const b=document.createElement('button');
-    b.textContent=em;
-    if(saved.includes(em))b.classList.add('active');
-    if(locked)b.disabled=true;
-    b.addEventListener('click',()=>{
-      if(locked)return;
-      const current=Array.from(moodRows.querySelectorAll('.active')).map(x=>x.textContent);
-      if(current.includes(em)){
-        b.classList.remove('active');
-      }else{
-        if(current.length>=MAX_EMOJIS_PER_DAY)return;
-        b.classList.add('active');
-      }
+  <script>
+  (function(){
+    const errBox = document.getElementById('err');
+    window.addEventListener('error', (e)=>{
+      errBox.textContent = 'Script error: ' + (e.message || e.toString());
+      errBox.style.display = 'block';
     });
-    moodRows.appendChild(b);
-  }
-  lockMsg.style.display=locked?'block':'none';
-}
-function updateAll(viewDate){
-  const start=new Date(startInput.value);
-  if(isNaN(start))return;
-  const today=new Date();
-  const d=viewDate||today;
-  const pill=pillForDate(start,d);
-  const phase=phaseForPill(pill);
-  summaryDiv.textContent=`${iso(d)} = Pill ${pill} (${phase.name})`;
-  renderMoodOptions(d,phase);
-  // prefill pillToday dropdown
-  pillTodaySel.value=String(pill);
-  renderCalendar(start,d);
-}
-function renderCalendar(start,viewDate){
-  const year=viewDate.getFullYear(),month=viewDate.getMonth();
-  const first=new Date(year,month,1);
-  const last=new Date(year,month+1,0);
-  calLabel.textContent=`${year}-${String(month+1).padStart(2,'0')}`;
-  const weeks=[];
-  let cur=new Date(first);
-  cur.setDate(cur.getDate()-cur.getDay());
-  while(cur<=last||cur.getDay()!=0){
-    const week=[];
-    for(let i=0;i<7;i++){
-      week.push(new Date(cur));
-      cur.setDate(cur.getDate()+1);
+
+    /* ------------ CONFIG ------------ */
+    const PACK = 28;
+    const MAX_EMOJIS_PER_DAY = 5;
+
+    const PHASES = [
+      { key:'high', label:'High energy', emojis:['💖','🎀','🍸','🌹','✨','👗','💄','🌞','🎉','💃','🍓','💍'], range:[ 1, 6] },
+      { key:'mid', label:'Normal', emojis:['☕','📚','🌷','📝','📒','🧺','🧠','🧃','🌤️','🧹','🫧','🗂️'], range:[ 7,11] },
+      { key:'low', label:'Low energy', emojis:['🛏️','🧸','🍵','🕯️','😴','🎧','🫖','🍜','🧦','🌧️','📖','🧼'], range:[12,17] },
+      { key:'pms', label:'PMS', emojis:['💢','🍫','😭','🔥','🎨','🤯','😤','🧃','🌪️','🥀','😵‍💫','🙅‍♀️'], range:[18,23] },
+      { key:'period', label:'Period', emojis:['🩸','🛁','🌸','🫖','🧘‍♀️','🩹','🥣','🧴','🧣','🛋️','🌙','🧁'], range:[24,28] },
+    ];
+
+    // lightweight “learning” (no UI) to adapt phases over time
+    const MIN_STRONG_COUNT = 2, MIN_TOTAL_FOR_RATIO = 4, MIN_TOP_SHARE = 0.6;
+
+    /* ------------ storage keys ------------ */
+    const LS_START = 'triq28_start_iso';
+    const LS_MOODS = 'triq28_moods_v4_submit_lock'; // { 'YYYY-MM-DD': { emojis:[], phase:'', locked:true } }
+    const LS_LEARN = 'triq28_learn_v1';
+
+    /* ------------ DOM ------------ */
+    const startInput = document.getElementById('startDate');
+    const pillTodaySel = document.getElementById('pillToday');
+    const setFromPillBtn = document.getElementById('setFromPill');
+    const viewDateInput = document.getElementById('viewDate');
+    const jumpToViewBtn = document.getElementById('jumpToView');
+    const submitDayBtn = document.getElementById('submitDay');
+
+    const summaryEl = document.getElementById('summary');
+    const calendarEl = document.getElementById('calendar');
+    const calLabelEl = document.getElementById('calLabel');
+    const moodRowsEl = document.getElementById('moodRows');
+    const moodHintEl = document.getElementById('moodHint');
+    const lockMsgEl = document.getElementById('lockMsg');
+
+    let viewDateOffset = 0; // days from real today for the “focused” date
+
+    /* ------------ utils ------------ */
+    function toISO(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+    function fromISO(s){ if(!s) return null; const [y,m,d]=s.split('-').map(n=>parseInt(n,10)); if(!y||!m||!d) return null; return new Date(y,m-1,d); }
+    function daysBetweenLocal(a,b){ const a0=new Date(a.getFullYear(),a.getMonth(),a.getDate()); const b0=new Date(b.getFullYear(),b.getMonth(),b.getDate()); return Math.round((b0-a0)/86400000); }
+    function pillForDate(start,date){ const diff=daysBetweenLocal(start,date); const mod=((diff%PACK)+PACK)%PACK; return mod+1; }
+    function basePhaseForPill(p){ for(const ph of PHASES){ const [lo,hi]=ph.range; if(p>=lo&&p<=hi) return ph.key; } return 'mid'; }
+
+    /* ------------ storage helpers ------------ */
+    function getSavedStart(){ return fromISO(localStorage.getItem(LS_START)); }
+    function setSavedStart(d){ localStorage.setItem(LS_START, toISO(d)); startInput.value = toISO(d); }
+    function loadJSON(k,f){ try{ const raw=localStorage.getItem(k); return raw?JSON.parse(raw):f; }catch{ return f; } }
+    function saveJSON(k,o){ localStorage.setItem(k, JSON.stringify(o)); }
+    function loadMoods(){ return loadJSON(LS_MOODS, {}); }
+    function saveMoods(o){ saveJSON(LS_MOODS, o); }
+    function loadLearn(){ const o=loadJSON(LS_LEARN,{stats:{},learned:{}}); if(!o.stats) o.stats={}; if(!o.learned) o.learned={}; return o; }
+    function saveLearn(o){ saveJSON(LS_LEARN,o); }
+
+    /* ------------ adaptive learning ------------ */
+    function updateLearningFor(pill, chosenPhase){
+      const learn=loadLearn(); const key=String(pill);
+      if(!learn.stats[key]) learn.stats[key] = {high:0, mid:0, low:0, pms:0, period:0};
+      learn.stats[key][chosenPhase] = (learn.stats[key][chosenPhase]||0) + 1;
+
+      const c=learn.stats[key]; const total=Object.values(c).reduce((s,n)=>s+n,0);
+      let top='', topCount=-1, second=-1;
+      for(const ph of Object.keys(c)){
+        const v=c[ph];
+        if(v>topCount){ second=topCount; topCount=v; top=ph; }
+        else if(v>second){ second=v; }
+      }
+      if((topCount>=MIN_STRONG_COUNT && topCount>second) || (total>=MIN_TOTAL_FOR_RATIO && topCount/total>=MIN_TOP_SHARE)){
+        learn.learned[key]=top;
+      }
+      saveLearn(learn);
     }
-    weeks.push(week);
-  }
-  calendarDiv.innerHTML='';
-  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d=>{
-    const cell=document.createElement('div');
-    cell.textContent=d;
-    cell.className='cal-head';
-    calendarDiv.appendChild(cell);
-  });
-  const today=iso(new Date());
-  for(const w of weeks){
-    for(const d of w){
-      const cell=document.createElement('div');
-      cell.className='cal-cell';
-      if(d.getMonth()!=month)cell.style.opacity='.3';
-      const pill=pillForDate(start,d);
-      const phase=phaseForPill(pill);
-      cell.dataset.exp=phase.name;
-      const span=document.createElement('span');
-      span.className='day';
-      span.textContent=d.getDate();
-      cell.appendChild(span);
-      const pillTag=document.createElement('div');
-      pillTag.className='pill-tag';
-      pillTag.textContent='P'+pill;
-      cell.appendChild(pillTag);
-      const saved=getMoodLog(d);
-      if(saved&&saved.length){
-        const mm=document.createElement('div');
-        mm.className='mood-mark';
-        mm.textContent=saved.slice(0,2).join('');
-        cell.appendChild(mm);
-        if(saved.length>2){
-          const extra=document.createElement('div');
-          extra.className='mood-extra';
-          extra.textContent='+'+(saved.length-2);
-          cell.appendChild(extra);
+    function expectedPhaseForPill(p){ const learned=loadLearn().learned[String(p)]; return learned || basePhaseForPill(p); }
+
+    /* ------------ moods (multi-select + submit lock) ------------ */
+    function currentViewedDate(){ const base=new Date(); base.setDate(base.getDate()+viewDateOffset); return base; }
+
+    function toggleEmojiForDate(date, phaseKey, emoji){
+      const k = toISO(date);
+      const moods = loadMoods();
+      const entry = moods[k] || {emojis:[], phase:phaseKey, locked:false};
+
+      if(entry.locked){ return; } // read-only once submitted
+
+      // toggle
+      const idx = entry.emojis.indexOf(emoji);
+      if(idx>=0){ entry.emojis.splice(idx,1); }
+      else{
+        if(entry.emojis.length >= MAX_EMOJIS_PER_DAY){
+          alert('Max 5 emojis — submit when ready 💖');
+          return;
         }
+        entry.emojis.push(emoji);
       }
-      if(iso(d)===today){
-        const ring=document.createElement('div');
-        ring.className='today-ring';
-        cell.appendChild(ring);
-      }
-      cell.addEventListener('click',()=>{updateAll(d);viewDateInput.value=iso(d);});
-      calendarDiv.appendChild(cell);
+
+      // recompute day phase by majority of selected emoji rows
+      const counts = {high:0, mid:0, low:0, pms:0, period:0};
+      entry.emojis.forEach(em=>{
+        for(const p of PHASES){ if(p.emojis.includes(em)){ counts[p.key]++; break; } }
+      });
+      let chosen = phaseKey, best=-1;
+      for(const ph of Object.keys(counts)){ if(counts[ph]>best){ best=counts[ph]; chosen=ph; } }
+      entry.phase = chosen;
+
+      moods[k] = entry; saveMoods(moods);
     }
-  }
-}
-function setStartFromPillToday(pillNumber){
-  const today=new Date();
-  const start=new Date(today.getFullYear(),today.getMonth(),today.getDate()-(pillNumber-1));
-  setSavedStart(start);
-  startInput.value=iso(start);
-  updateAll(today);
-}
-submitDayBtn.addEventListener('click',()=>{
-  const currentDate=new Date(viewDateInput.value||new Date());
-  const current=Array.from(moodRows.querySelectorAll('.active')).map(x=>x.textContent);
-  if(current.length===0)return;
-  setMoodLog(currentDate,current);
-  updateAll(currentDate);
-});
-setFromPillBtn.addEventListener('click',()=>{
-  const n=Number(pillTodaySel.value);
-  if(n>=1&&n<=28)setStartFromPillToday(n);
-});
-jumpToViewBtn.addEventListener('click',()=>{if(viewDateInput.value)updateAll(new Date(viewDateInput.value));});
-(function init(){
-  for(let i=1;i<=28;i++){const opt=document.createElement('option');opt.value=i;opt.textContent=i;pillTodaySel.appendChild(opt);}
-  const saved=getSavedStart();
-  if(saved)startInput.value=iso(saved);
-  else startInput.value=iso(new Date());
-  viewDateInput.value=iso(new Date());
-  updateAll(new Date());
-})();
-</script>
+
+    function submitDay(date){
+      const k = toISO(date);
+      const moods = loadMoods();
+      const start = getSavedStart();
+      const entry = moods[k] || {emojis:[], phase:expectedPhaseForPill(pillForDate(start, date)), locked:false};
+
+      if(entry.emojis.length === 0){
+        alert('Pick at least one emoji before submitting 🌸');
+        return;
+      }
+      entry.locked = true;
+      moods[k] = entry; saveMoods(moods);
+
+      // learn from submitted phase
+      const pill = pillForDate(start, date);
+      updateLearningFor(pill, entry.phase);
+    }
+
+    /* ------------ UI builders ------------ */
+    function renderMoodRows(date, expectedPhaseKey){
+      moodRowsEl.innerHTML = '';
+      const k = toISO(date);
+      const moods = loadMoods();
+      const entry = moods[k] || {emojis:[], phase:expectedPhaseKey, locked:false};
+      const selected = entry.emojis || [];
+      const locked = !!entry.locked;
+
+      // hint + submit state
+      moodHintEl.innerHTML = locked
+        ? `Submitted (${selected.length}/5) — locked`
+        : `Selected ${selected.length}/${MAX_EMOJIS_PER_DAY}`;
+
+      lockMsgEl.style.display = locked ? 'block' : 'none';
+      submitDayBtn.disabled = locked;
+
+      PHASES.forEach(p=>{
+        const row = document.createElement('div');
+        row.className = 'mood-row';
+
+        const label = document.createElement('span');
+        label.className = 'mood-label';
+        label.textContent = p.key.toUpperCase();
+        row.appendChild(label);
+
+        p.emojis.forEach(em=>{
+          const btn = document.createElement('button');
+          btn.type='button'; btn.className='emoji-btn'; btn.textContent=em;
+          if(selected.includes(em)) btn.classList.add('active');
+          if(locked) btn.setAttribute('disabled','');
+          btn.addEventListener('click', ()=>{
+            if(locked) return;
+            toggleEmojiForDate(date, p.key, em);
+            updateAll(); // refresh counts & active state
+          });
+          row.appendChild(btn);
+        });
+
+        if(p.key === expectedPhaseKey){
+          const hint = document.createElement('span');
+          hint.className='mood-label';
+          hint.style.background='#e7ffef'; hint.style.color='#0b7c38';
+          hint.textContent='expected today';
+          row.appendChild(hint);
+        }
+        moodRowsEl.appendChild(row);
+      });
+    }
+
+    function renderSummary(start, date){
+      const pill = pillForDate(start, date);
+      const exp = expectedPhaseForPill(pill);
+      const base = basePhaseForPill(pill);
+
+      const moods = loadMoods();
+      const entry = moods[toISO(date)];
+      const chosenPhase = entry?.phase || exp;
+
+      const combo = (entry?.emojis||[]).slice(0,5).join(' ');
+      const flag = (exp!==base) ? ' (learned)' : ' (base)';
+
+      summaryEl.innerHTML =
+        `<div><strong>${toISO(date)}</strong> · Pill <strong>${pill}</strong> / ${PACK}</div>
+         <div style="margin-top:6px;">Expected: <strong>${exp.toUpperCase()}</strong>${flag}</div>
+         <div style="margin-top:6px;">This date: <strong>${(entry ? chosenPhase : exp).toUpperCase()}</strong> ${entry?'(custom)':'(expected)'}</div>
+         <div style="margin-top:6px; font-size:18px;">${combo || '🌸'}</div>`;
+      return { pill, expKey: exp, avatarEmoji: (entry?.emojis?.[0] || '🌸') };
+    }
+
+    function renderCalendar(start, monthDate, focusDate){
+      calendarEl.innerHTML='';
+      const y=monthDate.getFullYear(), m=monthDate.getMonth();
+      calLabelEl.textContent = `${y}-${String(m+1).padStart(2,'0')}`;
+
+      ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(n=>{
+        const h=document.createElement('div'); h.className='cal-cell cal-head'; h.textContent=n; calendarEl.appendChild(h);
+      });
+
+      const first=new Date(y,m,1), startDay=first.getDay(), dim=new Date(y,m+1,0).getDate();
+      for(let i=0;i<startDay;i++){ const pad=document.createElement('div'); pad.className='cal-cell'; calendarEl.appendChild(pad); }
+
+      const moods=loadMoods();
+      for(let d=1; d<=dim; d++){
+        const date=new Date(y,m,d);
+        const pill=pillForDate(start,date);
+        const exp = expectedPhaseForPill(pill);
+        const k = toISO(date);
+        const entry = moods[k];
+
+        const cell=document.createElement('div');
+        cell.className='cal-cell'; cell.dataset.exp=entry?.phase || exp;
+
+        const dn=document.createElement('div'); dn.className='day'; dn.textContent=d; cell.appendChild(dn);
+        const tag=document.createElement('div'); tag.className='pill-tag'; tag.textContent=`P${pill}`; cell.appendChild(tag);
+
+        if(entry?.emojis?.length){
+          const show = entry.emojis.slice(0,3).join(' ');
+          const extra = entry.emojis.length>3 ? ` +${entry.emojis.length-3}` : '';
+          const em=document.createElement('div'); em.className='mood-mark'; em.textContent=show+extra; cell.appendChild(em);
+        }
+
+        // click any date to view/edit that date
+        cell.addEventListener('click', ()=>{
+          const today = new Date();
+          viewDateOffset = daysBetweenLocal(today, date);
+          updateAll();
+        });
+
+        if(toISO(date) === toISO(focusDate)){
+          const ring=document.createElement('div'); ring.className='today-ring'; cell.appendChild(ring);
+          const em = (entry?.emojis?.[0] || '🌸');
+          const chip=document.createElement('div'); chip.className='today-emoji'; chip.textContent=em; cell.appendChild(chip);
+        }
+
+        calendarEl.appendChild(cell);
+      }
+    }
+
+    /* ------------ init & controls ------------ */
+    function populatePillSelector(){
+      pillTodaySel.innerHTML = Array.from({length:PACK},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+    }
+    function initStart(){
+      const saved=getSavedStart();
+      if(saved) startInput.value = toISO(saved);
+      else { const t=new Date(); setSavedStart(t); }
+    }
+    function syncViewDateInput(){
+      const d=currentViewedDate(); viewDateInput.value = toISO(d);
+    }
+    function daysBetweenLocal(a,b){ const a0=new Date(a.getFullYear(),a.getMonth(),a.getDate()); const b0=new Date(b.getFullYear(),b.getMonth(),b.getDate()); return Math.round((b0-a0)/86400000); }
+    function currentViewedDate(){ const base=new Date(); base.setDate(base.getDate()+viewDateOffset); return base; }
+
+    function setStartFromPillToday(pillNumber){
+      const today = new Date();
+      const start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (Number(pillNumber) - 1));
+      setSavedStart(start); viewDateOffset=0; updateAll();
+    }
+
+    function updateAll(){
+      const start = fromISO(startInput.value); if(!start) return;
+      const focusDate = currentViewedDate();
+      const monthAnchor = new Date(focusDate.getFullYear(), focusDate.getMonth(), 1);
+
+      const {pill, expKey} = renderSummary(start, focusDate);
+      renderMoodRows(focusDate, expKey);
+      renderCalendar(start, monthAnchor, focusDate);
+
+      // keep pill selector synced to real today
+      const todayPill = pillForDate(start, new Date());
+      pillTodaySel.value = String(todayPill);
+
+      // keep the viewDate input synced to focused date
+      syncViewDateInput();
+    }
+
+    // wire it up
+    populatePillSelector();
+    initStart();
+    updateAll();
+
+    startInput.addEventListener('change', ()=>{
+      const d=fromISO(startInput.value);
+      if(d){ setSavedStart(d); viewDateOffset=0; updateAll(); }
+    });
+
+    setFromPillBtn.addEventListener('click', ()=>{
+      const n=Number(pillTodaySel.value);
+      if(n>=1&&n<=PACK) setStartFromPillToday(n);
+    });
+
+    jumpToViewBtn.addEventListener('click', ()=>{
+      const picked = fromISO(viewDateInput.value); if(!picked) return;
+      const today = new Date(); viewDateOffset = daysBetweenLocal(today, picked); updateAll();
+    });
+
+    submitDayBtn.addEventListener('click', ()=>{
+      const d=currentViewedDate();
+      submitDay(d);
+      updateAll();
+    });
+
+    window.addEventListener('resize', ()=>updateAll(), {passive:true});
+  })();
+  </script>
 </body>
 </html>
