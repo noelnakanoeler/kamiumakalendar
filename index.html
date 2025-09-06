@@ -7,31 +7,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     :root{
-      --pink:#FFE3F3; /* softer baby pink bg */
-      --ink:#0b0f14;
-      --panel:#fff;
-      --grid:#ffeef8;
-
-      /* baby-pink buttons (not hot pink) */
-      --btn-bg:#FFCAE9;
-      --btn-border:#E3A8CF;
-      --btn-text:#5a2145;
-
-      /* accents */
-      --ribbon:#FFB7E6;
-      --ribbon-dark:#D78CC0;
-
+      --pink:#FFE3F3; --ink:#0b0f14; --panel:#fff; --grid:#ffeef8;
+      --btn-bg:#FFCAE9; --btn-border:#E3A8CF; --btn-text:#5a2145;
+      --ribbon:#FFB7E6; --ribbon-dark:#D78CC0;
       --radius:14px; --shadow:6px 6px 0 var(--ink);
-
-      /* phase colors */
-      --ph-high:#7bd389; /* mint/green */
-      --ph-mid:#ffd166; /* soft amber */
-      --ph-low:#9bb5ff; /* calm blue */
-      --ph-pms:#ff8fb7; /* rosy pink */
-      --ph-period:#c084fc; /* lilac */
+      --ph-high:#7bd389; --ph-mid:#ffd166; --ph-low:#9bb5ff; --ph-pms:#ff8fb7; --ph-period:#c084fc;
       --tile-size:48px; --board-size:420px;
     }
-
     *{ box-sizing:border-box; } html,body{ height:100%; }
     body{
       margin:0;
@@ -44,12 +26,8 @@
       line-height:1.6;
     }
     .wrap{ max-width:1000px; margin:0 auto; padding:18px 14px 120px; }
-
-    /* sparkly header ribbon */
     .hero{
-      background:
-        radial-gradient(circle at 12% -10%, #fff8fd 0 40%, transparent 41%),
-        var(--panel);
+      background: radial-gradient(circle at 12% -10%, #fff8fd 0 40%, transparent 41%), var(--panel);
       border:4px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow);
       padding:20px 18px 14px; text-align:center; position:relative;
     }
@@ -61,7 +39,6 @@
     .hero:after{ right:14px; } .hero:before{ left:14px; transform:rotate(3deg); }
     h1{ margin:0 0 8px; font-size:18px; }
     .tag{ font-size:12px; color:#7b3a63; margin:0; }
-
     .panel{
       background:var(--panel); border:4px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow);
       padding:16px; margin:16px 0; position:relative;
@@ -90,7 +67,6 @@
 
     .readout{ text-align:center; font-size:12px; margin-top:10px; }
 
-    /* board */
     .board-wrap{ display:flex; justify-content:center; }
     .board{
       position:relative; width:var(--board-size); height:var(--board-size); margin:auto; border-radius:50%;
@@ -116,14 +92,12 @@
     }
     .avatar.glow{ box-shadow:0 0 0 4px #fff, 6px 6px 0 var(--ink); }
 
-    /* mood picker */
     .mood-box{ margin-top:12px; border:3px solid var(--ink); border-radius:12px; padding:12px; background:#fff; box-shadow:3px 3px 0 var(--ink); }
     .mood-rows{ display:grid; gap:10px; }
     .mood-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .mood-label{
       font-size:10px; padding:2px 8px; border:2px solid var(--ink); border-radius:10px;
-      background:linear-gradient(#fff,#ffe6f5);
-      color:#6b2b54;
+      background:linear-gradient(#fff,#ffe6f5); color:#6b2b54;
     }
     .emoji-btn{
       border:2px solid var(--ink); border-radius:10px; padding:6px 8px; font-size:18px; background:#fff; cursor:pointer;
@@ -131,7 +105,6 @@
     }
     .emoji-btn.active{ outline:3px dashed var(--ribbon-dark); outline-offset:2px; background:#fff7fd; }
 
-    /* calendar */
     .calendar{ display:grid; gap:8px; grid-template-columns: repeat(7, 1fr); border:2px solid var(--ink); border-radius:12px; padding:10px; background:#fff; }
     .cal-head{ font-weight:bold; background:#fff4f8; }
     .cal-cell{ border:2px solid #f2c1d7; border-radius:10px; min-height:76px; padding:8px; position:relative; font-size:10px; background:#fff; }
@@ -139,6 +112,14 @@
     .pill-tag{ position:absolute; bottom:6px; left:6px; padding:3px 6px; border:2px solid var(--ink); border-radius:8px; background:#fff; font-size:10px; }
     .mood-mark{ position:absolute; bottom:6px; right:6px; font-size:14px; }
     .mood-extra{ position:absolute; bottom:6px; right:28px; font-size:12px; opacity:.7; }
+
+    /* error overlay */
+    #err{
+      position:fixed; left:12px; bottom:12px; max-width:92vw;
+      background:#fff3f3; color:#8a1f1f; border:3px solid #d66; border-radius:12px;
+      padding:10px 12px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size:12px; box-shadow:4px 4px 0 #d66; display:none; z-index:9999;
+    }
   </style>
 </head>
 <body>
@@ -148,7 +129,6 @@
       <p class="tag">Pixel board · multi-emoji moods · auto-calibration 🎀</p>
     </header>
 
-    <!-- Controls -->
     <section class="panel">
       <h2 class="section-title">🎀 Your Pack</h2>
       <div class="controls">
@@ -178,14 +158,12 @@
 
       <div class="readout"><div id="summary"></div></div>
 
-      <!-- Emoji mood picker -->
       <div class="mood-box">
         <div class="mood-rows" id="moodRows"></div>
         <div class="readout" style="opacity:.8">Pick up to <b>5</b> emojis that fit your day. Toggle to select/unselect.</div>
       </div>
     </section>
 
-    <!-- Board -->
     <section class="panel">
       <h2 class="section-title">🧭 Daily Board (28 tiles)</h2>
       <div class="board-wrap">
@@ -195,7 +173,6 @@
       </div>
     </section>
 
-    <!-- Calendar -->
     <section class="panel">
       <h2 class="section-title">🗓 Monthly Calendar</h2>
       <div id="calendar" class="calendar" aria-label="Month view"></div>
@@ -205,12 +182,22 @@
     <footer class="footer-note">♡ all data stays in your browser (localStorage) ♡</footer>
   </div>
 
+  <!-- error overlay -->
+  <div id="err"></div>
+
   <script>
-    /* ---------------- CONFIG ---------------- */
+  (function(){
+    // ------- tiny error overlay so we see issues instead of "nothing works"
+    const errBox = document.getElementById('err');
+    window.addEventListener('error', (e)=>{
+      errBox.textContent = 'Script error: ' + (e.message || e.toString());
+      errBox.style.display = 'block';
+    });
+
+    // ---------------- CONFIG ----------------
     const PACK = 28;
     const MAX_EMOJIS_PER_DAY = 5;
 
-    // 10+ per phase, tuned to your vibe
     const PHASES = [
       { key:'high', label:'High energy', emojis:['💖','🎀','🍸','🌹','✨','👗','💄','🌞','🎉','💃','🍓','💍'], range:[ 1, 6] },
       { key:'mid', label:'Normal', emojis:['☕','📚','🌷','📝','📒','🧺','🧠','🧃','🌤️','🧹','🫧','🗂️'], range:[ 7,11] },
@@ -219,17 +206,17 @@
       { key:'period', label:'Period', emojis:['🩸','🛁','🌸','🫖','🧘‍♀️','🩹','🥣','🧴','🧣','🛋️','🌙','🧁'], range:[24,28] },
     ];
 
-    /* learning thresholds */
+    // learning thresholds
     const MIN_STRONG_COUNT = 2;
     const MIN_TOTAL_FOR_RATIO = 4;
     const MIN_TOP_SHARE = 0.6;
 
-    /* storage keys */
+    // storage keys
     const LS_START = 'triq28_start_iso';
-    const LS_MOODS = 'triq28_moods_v2_multi'; // { 'YYYY-MM-DD': { emojis:['',''], phase:'key' } }
+    const LS_MOODS = 'triq28_moods_v2_multi';
     const LS_LEARN = 'triq28_learn_v1';
 
-    /* ---------------- DOM ---------------- */
+    // DOM
     const startInput = document.getElementById('startDate');
     const pillTodaySel = document.getElementById('pillToday');
     const setFromPillBtn = document.getElementById('setFromPill');
@@ -249,12 +236,24 @@
 
     let viewOffset = 0;
 
-    /* ---------------- Utils ---------------- */
-    const iso = d => new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())).toISOString().slice(0,10);
-    const daysBetween = (a,b) => Math.floor((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) - Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/86400000);
-
+    // ---------------- Utils ----------------
+    function dateToISO(d){
+      const y=d.getFullYear(), m=(d.getMonth()+1).toString().padStart(2,'0'), day=d.getDate().toString().padStart(2,'0');
+      return `${y}-${m}-${day}`;
+    }
+    function dateFromISO(s){
+      if(!s) return null;
+      const [y,m,d] = s.split('-').map(n=>parseInt(n,10));
+      if(!y||!m||!d) return null;
+      return new Date(y, m-1, d);
+    }
+    function daysBetweenLocal(a,b){
+      const a0=new Date(a.getFullYear(),a.getMonth(),a.getDate());
+      const b0=new Date(b.getFullYear(),b.getMonth(),b.getDate());
+      return Math.round((b0 - a0) / 86400000);
+    }
     function pillForDate(start, date){
-      const diff = daysBetween(start, date);
+      const diff = daysBetweenLocal(start, date);
       const mod = ((diff % PACK) + PACK) % PACK;
       return mod + 1;
     }
@@ -263,34 +262,35 @@
       return 'mid';
     }
 
-    /* ---------------- Storage ---------------- */
-    function getSavedStart(){
-      const s = localStorage.getItem(LS_START);
-      if(!s) return null;
-      const d = new Date(s);
-      return isNaN(d) ? null : d;
+    // ---------------- Storage ----------------
+    function getSavedStart(){ return dateFromISO(localStorage.getItem(LS_START)); }
+    function setSavedStart(d){ localStorage.setItem(LS_START, dateToISO(d)); startInput.value = dateToISO(d); }
+
+    function loadJSON(key, fallback){
+      try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+      catch{ return fallback; }
     }
-    function setSavedStart(d){ localStorage.setItem(LS_START, iso(d)); startInput.value = iso(d); }
+    function saveJSON(key, obj){ localStorage.setItem(key, JSON.stringify(obj)); }
 
-    function loadMoods(){ try{ return JSON.parse(localStorage.getItem(LS_MOODS)||'{}'); }catch(e){ return {}; } }
-    function saveMoods(o){ localStorage.setItem(LS_MOODS, JSON.stringify(o)); }
+    function loadMoods(){ return loadJSON(LS_MOODS, {}); }
+    function saveMoods(o){ saveJSON(LS_MOODS, o); }
 
-    function loadLearn(){ try{
-      const o = JSON.parse(localStorage.getItem(LS_LEARN)||'{}');
-      if(!o.stats) o.stats = {}; if(!o.learned) o.learned = {};
+    function loadLearn(){
+      const o = loadJSON(LS_LEARN, {stats:{}, learned:{}});
+      if(!o.stats) o.stats = {};
+      if(!o.learned) o.learned = {};
       return o;
-    }catch(e){ return {stats:{}, learned:{}}; } }
-    function saveLearn(o){ localStorage.setItem(LS_LEARN, JSON.stringify(o)); }
+    }
+    function saveLearn(o){ saveJSON(LS_LEARN, o); }
     function resetLearning(){ saveLearn({stats:{}, learned:{}}); }
 
-    /* ---------------- Learning ---------------- */
+    // ---------------- Learning ----------------
     function updateLearningFor(dateIso, pill, chosenPhase){
       const learn = loadLearn();
       const key = String(pill);
       if(!learn.stats[key]) learn.stats[key] = {high:0, mid:0, low:0, pms:0, period:0};
       learn.stats[key][chosenPhase] = (learn.stats[key][chosenPhase]||0) + 1;
 
-      // decide learned phase
       const c = learn.stats[key];
       const total = Object.values(c).reduce((s,n)=>s+n,0);
       let top=''; let topCount=-1; let second=-1;
@@ -305,56 +305,51 @@
 
       saveLearn(learn);
     }
-
     function expectedPhaseForPill(pill){
       const learned = loadLearn().learned[String(pill)];
       return learned || basePhaseForPill(pill);
     }
 
-    /* ---------------- Mood selection (multi) ---------------- */
+    // ---------------- Mood selection (multi) ----------------
     function toggleEmojiForDate(targetDate, phaseKey, emoji){
       const moods = loadMoods();
-      const k = iso(targetDate);
+      const k = dateToISO(targetDate);
       const entry = moods[k] || { emojis:[], phase:phaseKey };
 
-      // toggle logic
       const idx = entry.emojis.indexOf(emoji);
       if(idx>=0){
         entry.emojis.splice(idx,1);
       }else{
-        if(entry.emojis.length >= MAX_EMOJIS_PER_DAY){
-          alert(`You can select up to ${MAX_EMOJIS_PER_DAY} emojis for a day.`);
+        if(entry.emojis.length >= 5){
+          alert('You can select up to 5 emojis for a day.');
           return;
         }
         entry.emojis.push(emoji);
       }
 
-      // determine day's phase by majority of selected emoji rows
-      // count selections per phase row
+      // pick phase by majority of selected emoji rows
       const counts = {high:0, mid:0, low:0, pms:0, period:0};
       entry.emojis.forEach(em=>{
-        for(const p of PHASES){ if(p.emojis.includes(em)) { counts[p.key]++; break; } }
+        for(const p of PHASES){ if(p.emojis.includes(em)){ counts[p.key]++; break; } }
       });
-      let chosenPhase = phaseKey; // fallback
-      let best = -1;
+      let chosenPhase = phaseKey, best=-1;
       for(const ph of Object.keys(counts)){ if(counts[ph]>best){ best=counts[ph]; chosenPhase=ph; } }
 
       entry.phase = chosenPhase;
       moods[k] = entry;
       saveMoods(moods);
 
-      // update learning using the chosen phase for this pill
-      const packStart = new Date(startInput.value);
+      const packStart = dateFromISO(startInput.value);
       const pill = pillForDate(packStart, targetDate);
       if(entry.emojis.length>0) updateLearningFor(k, pill, chosenPhase);
     }
 
-    /* ---------------- UI builders ---------------- */
+    // ---------------- UI builders ----------------
     function renderMoodRows(currentDate, expectedPhaseKey){
       moodRowsEl.innerHTML = '';
       const moods = loadMoods();
-      const k = iso(currentDate);
-      const current = moods[k]?.emojis || [];
+      const k = dateToISO(currentDate);
+      const current = (moods[k] && moods[k].emojis) ? moods[k].emojis : [];
 
       PHASES.forEach(p=>{
         const row = document.createElement('div');
@@ -376,7 +371,7 @@
         if(p.key === expectedPhaseKey){
           const hint = document.createElement('span');
           hint.className='mood-label';
-          hint.style.background='#e7ffef'; hint.style.color:'#0b7c38';
+          hint.style.background='#e7ffef'; hint.style.color='#0b7c38';
           hint.textContent='expected today';
           row.appendChild(hint);
         }
@@ -386,8 +381,9 @@
 
     function renderBoard(currentPill, avatarEmoji, glow){
       [...boardEl.querySelectorAll('.tile')].forEach(n=>n.remove());
-      const cx=boardEl.clientWidth/2, cy=boardEl.clientHeight/2;
-      const r=(Math.min(boardEl.clientWidth,boardEl.clientHeight)/2)-24;
+      const size = Math.min(boardEl.clientWidth||420, boardEl.clientHeight||420);
+      const cx=size/2, cy=size/2;
+      const r=(size/2)-24;
 
       for(let i=1;i<=PACK;i++){
         const theta=(i-1)*(2*Math.PI/PACK)-Math.PI/2;
@@ -404,7 +400,7 @@
           avatarEl.style.left=x+'px'; avatarEl.style.top=y+'px';
           avatarEl.textContent = avatarEmoji || '🌸';
           avatarEl.classList.toggle('glow', glow);
-          avatarEl.title = `Pill ${i} (${exp})`;
+          avatarEl.title = 'Pill '+i+' ('+exp+')';
         }
       }
     }
@@ -415,26 +411,27 @@
       const base = basePhaseForPill(pill);
 
       const moods = loadMoods();
-      const entry = moods[iso(date)];
-      const showEmoji = (entry?.emojis && entry.emojis.length) ? entry.emojis[0] : '🌸';
-      const chosenPhase = entry?.phase || exp;
+      const entry = moods[dateToISO(date)];
+      const showEmoji = (entry && entry.emojis && entry.emojis.length) ? entry.emojis[0] : '🌸';
+      const chosenPhase = (entry && entry.phase) ? entry.phase : exp;
       const flag = (exp!==base) ? ' (learned)' : ' (base)';
 
-      const combo = (entry?.emojis||[]).slice(0,5).join(' ');
-      const more = (entry?.emojis?.length||0) > 5 ? ` +${entry.emojis.length-5}` : '';
+      const combo = (entry && entry.emojis ? entry.emojis.slice(0,5).join(' ') : '');
+      const more = (entry && entry.emojis && entry.emojis.length>5) ? (' +' + (entry.emojis.length-5)) : '';
 
       summaryEl.innerHTML =
-        `<div><strong>${iso(date)}</strong> · Pill <strong>${pill}</strong> / ${PACK}</div>
-         <div style="margin-top:6px;">Expected: <strong>${exp.toUpperCase()}</strong>${flag}</div>
-         <div style="margin-top:6px;">Today: <strong>${chosenPhase.toUpperCase()}</strong> ${entry?'(custom)':'(expected)'} </div>
-         <div style="margin-top:6px; font-size:18px;">${combo || '🌸'}${more}</div>`;
+        '<div><strong>'+dateToISO(date)+'</strong> · Pill <strong>'+pill+
+        '</strong> / '+PACK+'</div>'+
+        '<div style="margin-top:6px;">Expected: <strong>'+exp.toUpperCase()+'</strong>'+flag+'</div>'+
+        '<div style="margin-top:6px;">Today: <strong>'+chosenPhase.toUpperCase()+'</strong> '+(entry?'(custom)':'(expected)')+'</div>'+
+        '<div style="margin-top:6px; font-size:18px;">'+(combo || '🌸')+more+'</div>';
       return { pill, expKey: exp, avatarEmoji: showEmoji };
     }
 
     function renderCalendar(packStart, monthDate){
       calendarEl.innerHTML='';
       const y=monthDate.getFullYear(), m=monthDate.getMonth();
-      calLabelEl.textContent = `${y}-${String(m+1).padStart(2,'0')}`;
+      calLabelEl.textContent = y+'-'+String(m+1).padStart(2,'0');
 
       ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(n=>{
         const h=document.createElement('div'); h.className='cal-cell cal-head'; h.textContent=n; calendarEl.appendChild(h);
@@ -448,26 +445,25 @@
         const date=new Date(y,m,d);
         const pill=pillForDate(packStart,date);
         const exp = expectedPhaseForPill(pill);
-        const entry = moods[iso(date)];
+        const entry = moods[dateToISO(date)];
 
-        const cell=document.createElement('div'); cell.className='cal-cell'; cell.dataset.exp=entry?.phase || exp;
+        const cell=document.createElement('div'); cell.className='cal-cell'; cell.dataset.exp=(entry && entry.phase) ? entry.phase : exp;
         const dn=document.createElement('div'); dn.className='day'; dn.textContent=d; cell.appendChild(dn);
-        const tag=document.createElement('div'); tag.className='pill-tag'; tag.textContent=`P${pill}`; cell.appendChild(tag);
+        const tag=document.createElement('div'); tag.className='pill-tag'; tag.textContent='P'+pill; cell.appendChild(tag);
 
-        if(entry?.emojis?.length){
+        if(entry && entry.emojis && entry.emojis.length){
           const show = entry.emojis.slice(0,3).join(' ');
-          const extra = entry.emojis.length>3 ? ` +${entry.emojis.length-3}` : '';
+          const extra = entry.emojis.length>3 ? (' +'+(entry.emojis.length-3)) : '';
           const em=document.createElement('div'); em.className='mood-mark'; em.textContent=show; cell.appendChild(em);
           if(extra){
             const ex=document.createElement('div'); ex.className='mood-extra'; ex.textContent=extra; cell.appendChild(ex);
           }
         }
-
         calendarEl.appendChild(cell);
       }
     }
 
-    /* ---------------- Init + Controls ---------------- */
+    // ---------------- Init + Controls ----------------
     function setStartFromPillToday(pillNumber){
       const today = new Date();
       const start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (Number(pillNumber) - 1));
@@ -483,53 +479,51 @@
       for(let i=1;i<=PACK;i++){
         const exp = expectedPhaseForPill(i);
         const base = basePhaseForPill(i);
-        if(exp!==base) diffs.push(`P${i}:${base}→${exp}`);
+        if(exp!==base) diffs.push('P'+i+':'+base+'→'+exp);
       }
-      alert(`Learned pills: ${learnedCount}/${PACK}\n` + (diffs.length? `Overrides: ${diffs.join(', ')}` : 'No overrides yet — keep logging!'));
+      alert('Learned pills: '+learnedCount+'/'+PACK+'\n' + (diffs.length? ('Overrides: '+diffs.join(', ')) : 'No overrides yet — keep logging!'));
     }
 
     function populatePillSelector(){
-      pillTodaySel.innerHTML = Array.from({length:PACK},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+      pillTodaySel.innerHTML = Array.from({length:PACK},(_,i)=>'<option value="'+(i+1)+'">'+(i+1)+'</option>').join('');
     }
 
     function initStart(){
       const saved = getSavedStart();
-      if(saved) startInput.value = iso(saved);
+      if(saved) startInput.value = dateToISO(saved);
       else { const t=new Date(); setSavedStart(t); }
     }
 
     function currentViewedDate(){ const base=new Date(); base.setDate(base.getDate()+viewOffset); return base; }
 
     function updateAll(){
-      const packStart = new Date(startInput.value);
-      const viewDate = currentViewedDate();
+      const packStart = dateFromISO(startInput.value);
+      if(!packStart){ return; }
 
-      const {pill, expKey, avatarEmoji} = renderSummary(packStart, viewDate);
-      renderBoard(pill, avatarEmoji, expKey==='high');
-      renderMoodRows(viewDate, expKey);
+      const viewDate = currentViewedDate();
+      const res = renderSummary(packStart, viewDate);
+      renderBoard(res.pill, res.avatarEmoji, res.expKey==='high');
+      renderMoodRows(viewDate, res.expKey);
       renderCalendar(packStart, new Date(viewDate.getFullYear(), viewDate.getMonth(), 1));
 
       const todayPill = pillForDate(packStart, new Date());
       pillTodaySel.value = String(todayPill);
     }
 
-    /* wire up */
+    // wire up
     populatePillSelector();
     initStart();
     updateAll();
 
-    startInput.addEventListener('change', ()=>{ setSavedStart(new Date(startInput.value)); viewOffset=0; updateAll(); });
+    startInput.addEventListener('change', ()=>{ const d=dateFromISO(startInput.value); if(d){ setSavedStart(d); viewOffset=0; updateAll(); } });
     prevBtn.addEventListener('click', ()=>{ viewOffset -= 1; updateAll(); });
     nextBtn.addEventListener('click', ()=>{ viewOffset += 1; updateAll(); });
     todayBtn.addEventListener('click', ()=>{ viewOffset = 0; updateAll(); });
 
-    setFromPillBtn.addEventListener('click', ()=>{
-      const n = Number(pillTodaySel.value);
-      if(n>=1 && n<=PACK) setStartFromPillToday(n);
-    });
+    setFromPillBtn.addEventListener('click', ()=>{ const n = Number(pillTodaySel.value); if(n>=1 && n<=PACK) setStartFromPillToday(n); });
 
     resetMoodBtn.addEventListener('click', ()=>{
-      const moods=loadMoods(); const k=iso(currentViewedDate());
+      const moods=loadMoods(); const k=dateToISO(currentViewedDate());
       if(moods[k]){ delete moods[k]; saveMoods(moods); updateAll(); }
     });
 
@@ -542,6 +536,7 @@
     });
 
     window.addEventListener('resize', ()=>updateAll(), {passive:true});
+  })();
   </script>
 </body>
 </html>
